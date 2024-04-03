@@ -157,6 +157,12 @@ public static class Kernel
                 case FileExtension.Cs:
                     color = (ConsoleColor)FileExtension.Cs;
                     break;
+                case FileExtension.Zip:
+                    color = (ConsoleColor)FileExtension.Zip;
+                    break;
+                case FileExtension.Exe:
+                    color = (ConsoleColor)FileExtension.Exe;
+                    break;
             }
             Dirs[Dept].Files.Add(new VirtualFile
             {
