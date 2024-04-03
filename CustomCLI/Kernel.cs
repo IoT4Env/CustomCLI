@@ -3,7 +3,7 @@
 public static class Kernel
 {
     public static CliCommands Commands { get; private set; } = new CliCommands();
-    public static List<CurrentDir> Dirs { get; private set; } = new() { new CurrentDir { Name = string.Empty } };
+    public static List<CurrentDir> Dirs { get; private set; } = new() { new CurrentDir { Name = string.Empty, Dept = -1 } };
     public static bool IsExit { get; private set; } = false;
     public static int Dept { get; private set; } = 0;
     public static List<string> Tree { get; private set; } = new() { string.Empty };
@@ -139,13 +139,6 @@ public static class Kernel
             return;
         }
         Tree.RemoveAt(Tree.Count - 1);
-        //Tree.Clear();
-        //Tree.Add(string.Empty);
-        //dirTree.RemoveRange(dirTree.Count - deptInt, deptInt);
-        //foreach (string dir in dirTree)
-        //{
-        //    Tree.Add(dir);
-        //}
         Dept--;
     }
 
@@ -222,11 +215,7 @@ public static class Kernel
 
     private static void Ls()
     {
-        int dept = Dept;
-        if(dept != 0)
-            dept--;
-
-        CurrentDir dir = Dirs.FirstOrDefault(f => f.Name.Equals(Tree[Tree.Count - 1]) && f.Dept == dept);
+        CurrentDir dir = Dirs.FirstOrDefault(f => f.Name.Equals(Tree[Tree.Count - 1]) && f.Dept == Dept - 1);
         foreach (VirtualFolder folder in dir.Folders)
         {
             Console.ForegroundColor = folder.Color;
