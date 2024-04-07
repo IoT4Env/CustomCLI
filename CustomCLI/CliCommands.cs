@@ -1,16 +1,52 @@
-﻿namespace CustomCLI;
+﻿using System.ComponentModel;
 
+namespace CustomCLI;
+
+/// <summary>
+/// Simulated cmd commands
+/// </summary>
 public enum CliCommands
 {
-    Help, //shows all commands available
-    Cls, //clear terminal
-    Exit, //exit terminal
-    Echo, //prints stuff on terminal
-    Cd, //Climb directory
-    Fd, //Fall directory
-    Touch, //creates file
-    Rm, //removes file
-    Mkdir, //creates folder
-    Rmdir, //removes directory and all files in it
-    Ls, //list elements in current directory
+    [Description("shows all commands available")]
+    Help,
+    [Description("clears terminal")]
+    Cls,
+    [Description("exits terminal")]
+    Exit,
+    [Description("prints stuff on terminal")]
+    Echo,
+    [Description("climb directory (one at a time)")]
+    Cd,
+    [Description("fall directory, meaning it descend by a specific amount the fs")]
+    Fd,
+    [Description("creates file")]
+    Touch,
+    [Description("removes file")]
+    Rm,
+    [Description("creates folder")]
+    Mkdir,
+    [Description("removes directory if empty")]
+    Rmdir,
+    [Description("lists elements in current directory")]
+    Ls,
+    [Description("edits current file")]
+    Edit,
+}
+
+public static class CliCommandsExtension
+{
+
+    /// <summary>
+    /// Extends the functionality of CliCommands enum to get the element deescription
+    /// </summary>
+    /// <param name="command"></param>
+    /// <returns>Description of the CliCommand</returns>    
+    public static string ToDescriptionString(this CliCommands command)
+    {
+        DescriptionAttribute[] attributes = (DescriptionAttribute[])command
+           .GetType()
+           .GetField(command.ToString())
+           .GetCustomAttributes(typeof(DescriptionAttribute), false);
+        return attributes.Length > 0 ? attributes[0].Description : string.Empty;
+    }
 }

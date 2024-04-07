@@ -2,7 +2,6 @@
 
 public static class Kernel
 {
-    public static CliCommands Commands { get; private set; } = new CliCommands();
     public static List<CurrentDir> Dirs { get; private set; } = new() { new CurrentDir { Name = string.Empty, Dept = -1 } };
     public static bool IsExit { get; private set; } = false;
     public static int Dept { get; private set; } = 0;
@@ -46,6 +45,9 @@ public static class Kernel
                     break;
                 case CliCommands.Ls:
                     Ls();
+                    break;
+                case CliCommands.Edit:
+                    CheckSyntax(args, CliCommands.Edit, Edit);
                     break;
                 case CliCommands.Exit:
                     IsExit = true;
@@ -107,7 +109,7 @@ public static class Kernel
     {
         Console.WriteLine("Command list:");
         foreach (CliCommands command in Enum.GetValues(typeof(CliCommands)))
-            Console.Write($"{command.ToString().ToLower()} ");
+            Console.Write($"{command.ToString().ToLower()}\t{command.ToDescriptionString()}\n");
         Console.WriteLine();
     }
 
@@ -242,5 +244,10 @@ public static class Kernel
         Console.ForegroundColor = ConsoleColor.Gray;
 
         Console.WriteLine();
+    }
+
+    private static void Edit(string arg)
+    {
+
     }
 }
