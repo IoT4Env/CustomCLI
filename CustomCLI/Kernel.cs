@@ -1,4 +1,7 @@
-﻿namespace CustomCLI;
+﻿using System.Diagnostics;
+using System.Reflection;
+
+namespace CustomCLI;
 
 public static class Kernel
 {
@@ -7,6 +10,10 @@ public static class Kernel
     public static int Dept { get; private set; } = 0;
     public static List<string> Tree { get; private set; } = new() { string.Empty };
 
+    /// <summary>
+    /// Executes command based on user input
+    /// </summary>
+    /// <param name="args"></param>
     public static void Execute(string[] args)
     {
         if (args[0].Equals(string.Empty))
@@ -248,6 +255,37 @@ public static class Kernel
 
     private static void Edit(string arg)
     {
+        var cePathSplitted = Path.GetFullPath("CustomEditor.exe").Split('\\');
+        var occurence = "CustomCLI";
+        var occurenceCount = 0;
+        for(int i = 0; i < cePathSplitted.Length; i++)
+        {
+            if (cePathSplitted[i].Equals(occurence))
+                occurenceCount++;
 
+            if (occurenceCount == 2)
+            {
+                cePathSplitted[i] = "CustomEditor";
+                break;
+            }
+        }
+
+        string cePathAdjusted = string.Join('\\', cePathSplitted);
+
+        //If file path is incorrcet for some reason(s), return from the method letting know the user what went wrong.
+        try
+        {
+            Process process = new();
+            process.StartInfo.FileName = cePathAdjusted;
+
+            process.Start();
+
+            process.WaitForExit();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            return;
+        }
     }
 }
