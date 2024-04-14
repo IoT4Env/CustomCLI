@@ -255,17 +255,32 @@ public static class Kernel
 
     private static void Edit(string arg)
     {
-        var cePathSplitted = Path.GetFullPath("CustomEditor.exe").Split('\\');
-        var occurence = "CustomCLI";
-        var occurenceCount = 0;
-        for(int i = 0; i < cePathSplitted.Length; i++)
+        var mainModule = Process.GetCurrentProcess().MainModule;
+
+        var exePath = mainModule.FileName.Split('\\');
+        var exeName = Path.GetFileNameWithoutExtension(mainModule.ModuleName);
+        var adjustedPath = string.Empty;
+
+        foreach(string s in exePath)
         {
-            if (cePathSplitted[i].Equals(occurence))
+            adjustedPath += $"{s}\\";
+            if (s.Equals(exeName))
+                break;
+        }
+
+        string[] projects = Directory.GetDirectories(adjustedPath).Select(Path.GetFileName).Where(s => !s.Contains('.')).ToArray();
+
+        var cePathSplitted = Path.GetFullPath($"{projects[1]}.exe").Split('\\');
+        var occurenceCount = 0;
+
+        for (int i = 0; i < cePathSplitted.Length; i++)
+        {
+            if (cePathSplitted[i].Equals(projects[0]))
                 occurenceCount++;
 
             if (occurenceCount == 2)
             {
-                cePathSplitted[i] = "CustomEditor";
+                cePathSplitted[i] = projects[1];
                 break;
             }
         }
