@@ -31,6 +31,8 @@ public enum CliCommands
     Ls,
     [Description("edits current file")]
     Edit,
+    [Description("Prints file content on the terminal")]
+    Cat,
 }
 
 public static class CliCommandsExtension
