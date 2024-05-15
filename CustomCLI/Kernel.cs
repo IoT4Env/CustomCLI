@@ -119,9 +119,9 @@ public class Kernel
     {
         return GetCurrentDir().Files.FirstOrDefault(f => f.Name.Equals(file));
     }
-    private static bool IsFolderEmpty(string name)
+    private static bool IsFolderEmpty()
     {
-        //Get current directory from wich the command has been called
+        //Get current directory from which the command has been called
         CurrentDir? dir = GetCurrentDir();
         return dir.Folders.Count == 0 && dir.Files.Count == 0;
     }
@@ -240,7 +240,7 @@ public class Kernel
             return;
         }
 
-        if (!IsFolderEmpty(arg))
+        if (!IsFolderEmpty())
         {
             Console.WriteLine($"\n{arg} is not empty.\nRemove elements in it first");
             return;
@@ -281,15 +281,37 @@ public class Kernel
             return;
         }
 
+        ConsoleKeyInfo cki;
         Console.WriteLine($"Editing {arg}");
 
         StringBuilder sb = new();
-        string ctt = Console.ReadLine();
-        while (ctt != string.Empty)
+        do
         {
-            sb.Append(ctt);
-            ctt = Console.ReadLine();
+            cki = Console.ReadKey();
+            switch (cki.Key)
+            {
+                case ConsoleKey.Enter:
+                    sb.Append('\n');
+                    Console.WriteLine();
+                    break;
+                case ConsoleKey.Spacebar:
+                    sb.Append(' ');
+                    break;
+                case ConsoleKey.Oem4: // ?
+                    sb.Append('?');
+                    break;
+                case ConsoleKey.Escape:
+                    Console.WriteLine();
+                    break;
+                case ConsoleKey.OemComma:
+                    sb.Append(',');
+                    break;
+                default:
+                    sb.Append(cki.Key.ToString().ToLower());
+                    break;
+            }
         }
+        while (cki.Key != ConsoleKey.Escape);
 
         CurrentDir dir = GetCurrentDir();
         dir.Files.FirstOrDefault(f => f.Name.Equals(arg)).Content = sb.ToString();
