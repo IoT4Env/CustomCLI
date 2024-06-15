@@ -124,6 +124,18 @@ public class Kernel
     {
         return Dirs.FirstOrDefault(d => d.Name.Equals(Tree[Tree.Count - 1]) && d.Dept == Dept - 1);
     }
+    public static CompositePath UnpackPath(string arg)
+    {
+        string[] args = arg.Split('/');
+        int fileIndex = args.Length - 1;
+        return new CompositePath()
+        {
+            ArgsNum = args.Length,
+            LastArgIndex = fileIndex,
+            LastArgName = args[fileIndex],
+            Folders = args.Take(fileIndex).ToArray()
+        };
+    }
     public static VirtualFile GetVirtualFile(string file)
     {
         return GetCurrentDir().Files.FirstOrDefault(f => f.Name.Equals(file));
@@ -142,7 +154,7 @@ public class Kernel
     private static bool FolderExists(string name)
     {
         CurrentDir? dir = GetCurrentDir();
-        name = name.Replace("/","");
+        name = name.Replace("/", "");
         return dir.Folders.Where(f => f.Name.Equals(name)).Count() != 0;
     }
 
@@ -195,24 +207,14 @@ public class Kernel
 
     private static void Touch(string arg)
     {
-        //touch test/file.txt
-        //following 3 lines might be structured inside a method
-        int dirIndex;
-        string fileName;
-        if (arg.Contains('/'))
+        CompositePath compositePath = UnpackPath(arg);
+        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0]))
         {
-            string[] test = arg.Split('/');
-            dirIndex = test.Length - 1;
-            fileName = test[dirIndex];
-        }
-        else
-        {
-            dirIndex = Dept;
-            fileName = arg;
+            Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
+            return;
         }
 
-
-        var splittedArg = arg.Split('.');
+        var splittedArg = compositePath.LastArgName.Split('.');
         if (Enum.TryParse<FileExtension>(splittedArg[splittedArg.Length - 1], ignoreCase: true, out var extension))
         {
             ConsoleColor color = 0;
@@ -232,10 +234,10 @@ public class Kernel
                     color = (ConsoleColor)FileExtension.Exe;
                     break;
             }
-            Dirs[dirIndex].Files.Add(new VirtualFile
+            Dirs[compositePath.LastArgIndex].Files.Add(new VirtualFile
             {
                 Color = color,
-                Name = fileName,
+                Name = compositePath.LastArgName,
                 Content = string.Empty
             });
         }
@@ -243,12 +245,19 @@ public class Kernel
 
     private static void Rm(string arg)
     {
-        if (Dirs[Dept].Files.Select(s => s.Name).FirstOrDefault(f => f.Equals(arg)) == null)
+        CompositePath compositePath = UnpackPath(arg);
+        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0]))
         {
-            Console.WriteLine($"No such file: {arg}");
+            Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
             return;
         }
-        Dirs[Dept].Files.RemoveAll(r => r.Name.Equals(arg));
+
+        if (Dirs[compositePath.LastArgIndex].Files.Select(s => s.Name).FirstOrDefault(f => f.Equals(compositePath.LastArgName)) == null)
+        {
+            Console.WriteLine($"No such file: {compositePath.LastArgName}");
+            return;
+        }
+        Dirs[compositePath.LastArgIndex].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
     }
 
     private static void MkDir(string arg)
