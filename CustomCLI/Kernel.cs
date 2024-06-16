@@ -124,6 +124,10 @@ public class Kernel
     {
         return Dirs.FirstOrDefault(d => d.Name.Equals(Tree[Tree.Count - 1]) && d.Dept == Dept - 1);
     }
+    public static CurrentDir GetFolderByPosition(string folder, int argsNum)
+    {
+        return Dirs.FirstOrDefault(d => d.Name.Equals(folder) && d.Dept == argsNum - 1);
+    }
     public static CompositePath UnpackPath(string arg)
     {
         string[] args = arg.Split('/');
@@ -140,10 +144,9 @@ public class Kernel
     {
         return GetCurrentDir().Files.FirstOrDefault(f => f.Name.Equals(file));
     }
-    private static bool IsFolderEmpty()
+    private static bool IsFolderEmpty(CurrentDir dir)
     {
         //Get current directory from which the command has been called
-        CurrentDir? dir = GetCurrentDir();
         return dir.Folders.Count == 0 && dir.Files.Count == 0;
     }
     private static bool FileExists(string name)
@@ -151,7 +154,7 @@ public class Kernel
         CurrentDir? dir = GetCurrentDir();
         return dir.Files.Where(file => file.Name.Equals(name)).Count() != 0;
     }
-    private static bool FolderExists(string name)
+    private static bool FolderExists(string name, int dept)
     {
         CurrentDir? dir = GetCurrentDir();
         name = name.Replace("/", "");
@@ -208,7 +211,7 @@ public class Kernel
     private static void Touch(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0]))
+        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0], Dept))
         {
             Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
             return;
@@ -246,57 +249,93 @@ public class Kernel
     private static void Rm(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0]))
+        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0], Dept))
         {
             Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
             return;
         }
 
-        if (Dirs[compositePath.LastArgIndex].Files.Select(s => s.Name).FirstOrDefault(f => f.Equals(compositePath.LastArgName)) == null)
+        if (!FileExists(compositePath.LastArgName))
         {
             Console.WriteLine($"No such file: {compositePath.LastArgName}");
             return;
         }
+        //check why file is not delting
         Dirs[compositePath.LastArgIndex].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
     }
 
     private static void MkDir(string arg)
     {
-        if (Dirs[Dept].Folders.Select(s => s.Name).FirstOrDefault(f => f.Equals(arg)) != null)
+        CompositePath compositePath = UnpackPath(arg);
+        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0], Dept))
         {
-            Console.WriteLine($"Folder {arg} already exists");
+            Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
             return;
         }
 
-        Dirs[Dept].Folders.Add(new VirtualFolder
+        if (FolderExists(compositePath.LastArgName, compositePath.LastArgIndex))
+        {
+            Console.WriteLine($"Folder {compositePath.LastArgName} already exists");
+            return;
+        }
+
+        Dirs[compositePath.LastArgIndex].Folders.Add(new VirtualFolder
         {
             Color = ConsoleColor.Blue,
-            Name = arg
+            Name = compositePath.LastArgName
         });
 
         Dirs.Add(new CurrentDir
         {
-            Name = arg,
-            Dept = Dept
+            Name = compositePath.LastArgName,
+            Dept = compositePath.LastArgIndex
         });
     }
 
     private static void Rmdir(string arg)
     {
-        if (Dirs[Dept].Folders.Select(s => s.Name).FirstOrDefault(f => f.Equals(arg)) == null)
+        CompositePath compositePath = UnpackPath(arg);
+        //folder(s) before last element
+        if (compositePath.ArgsNum > 1)
         {
-            Console.WriteLine($"No such folder: {arg}");
+            for(int i = 0; i < compositePath.ArgsNum - 1; i++)
+            {
+                if (!FolderExists(compositePath.Folders[i], i))
+                {
+                    Console.WriteLine($"No such folder: {compositePath.Folders[i]}");
+                    return;
+                }
+                Cd(compositePath.Folders[i]);
+            }
+
+            if (!IsFolderEmpty(GetFolderByPosition(compositePath.LastArgName, compositePath.ArgsNum)))
+            {
+                //TODO:
+                //Generate script that deleted all files in folder if the user wants to
+                Console.WriteLine($"\n{compositePath.LastArgName} is not empty.\nRemove elements in it first");
+                return;
+            }
+
+            Dirs[compositePath.LastArgIndex].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
+            Fd(compositePath.LastArgIndex.ToString());
             return;
         }
 
-        if (!IsFolderEmpty())
+        if (!FolderExists(compositePath.LastArgName, compositePath.LastArgIndex))
+        {
+            Console.WriteLine($"No such folder: {compositePath.LastArgName}");
+            return;
+        }
+
+        if (!IsFolderEmpty(GetFolderByPosition(compositePath.LastArgName, compositePath.ArgsNum)))
         {
             //TODO:
             //Generate script that deleted all files in folder if the user wants to
-            Console.WriteLine($"\n{arg} is not empty.\nRemove elements in it first");
+            Console.WriteLine($"\n{compositePath.LastArgName} is not empty.\nRemove elements in it first");
             return;
         }
-        Dirs[Dept].Folders.RemoveAll(r => r.Name.Equals(arg));
+        
+        Dirs[compositePath.LastArgIndex].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
     }
 
     private static void Ls()
@@ -380,7 +419,7 @@ public class Kernel
         string[] args = arg.Split("->");
         if (!FileExists(args[0]))
             Console.WriteLine($"No such file: {args[0]}");
-        else if (!FolderExists(args[1]))
+        else if (!FolderExists(args[1], Dept))
             Console.WriteLine($"No such folder: {args[1]}");
         else
         {
