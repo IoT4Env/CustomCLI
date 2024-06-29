@@ -15,10 +15,10 @@ public class Kernel
     //eg:
     //touch test/file.txt
     //We need this for the move command
-    public static List<CurrentDir> Dirs { get; private set; } = new() { new CurrentDir { Name = string.Empty, Dept = -1 } };
-    public static bool IsExit { get; private set; } = false;
-    public static int Dept { get; private set; } = 0;
-    public static List<string> Tree { get; private set; } = new() { string.Empty };
+    public static List<CurrentDir> Dirs { get; set; } = new() { new CurrentDir { Name = string.Empty, Dept = -1 } };
+    public static bool IsExit { get; set; } = false;
+    public static int Dept { get; set; } = 0;
+    public static List<string> Tree { get; set; } = new() { string.Empty };
 
     /// <summary>
     /// Executes command based on user input
@@ -40,7 +40,7 @@ public class Kernel
                     Cls();
                     break;
                 case CliCommands.Echo:
-                    CheckSyntax(args, CliCommands.Echo, EchoCommand.Execute);
+                    CheckSyntax(args, CliCommands.Echo, Echo);
                     break;
                 case CliCommands.Cd:
                     CheckSyntax(args, CliCommands.Cd, Cd);
@@ -146,17 +146,17 @@ public class Kernel
     {
         return GetCurrentDir().Files.FirstOrDefault(f => f.Name.Equals(file));
     }
-    private static bool IsFolderEmpty(CurrentDir dir)
+    public static bool IsFolderEmpty(CurrentDir dir)
     {
         //Get current directory from which the command has been called
         return dir.Folders.Count == 0 && dir.Files.Count == 0;
     }
-    private static bool FileExists(string name)
+    public static bool FileExists(string name)
     {
         CurrentDir? dir = GetCurrentDir();
         return dir.Files.Where(file => file.Name.Equals(name)).Count() != 0;
     }
-    private static bool FolderExists(string name)
+    public static bool FolderExists(string name)
     {
         CurrentDir? dir = GetCurrentDir();
         name = name.Replace("/", "");
@@ -174,22 +174,16 @@ public class Kernel
 
     private static void Cls() => Console.Clear();
 
-    private static void Echo(string arg) => Console.WriteLine(arg);
+    private static void Echo(string arg)
+    {
+        if (EchoCommand.CanExecute(arg))
+            EchoCommand.Execute(arg);
+    }
 
     private static void Cd(string arg)
     {
-        var levels = arg.Split('/');
-        foreach (var level in levels)
-        {
-            if (!FolderExists(level))
-            {
-                Console.WriteLine($"No such directory: {level}");
-                return;
-            }
-
-            Dept++;
-            Tree.Add(level);
-        }
+        if(CdCommand.CanExecute(arg))
+            CdCommand.Execute(arg);
     }
 
     private static void Fd(string dept)
