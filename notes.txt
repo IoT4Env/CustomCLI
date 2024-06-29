@@ -1,0 +1,3 @@
+pattern command
+Possiamo avere una classe astratta che ha un metodo "Execute()" dalla quale gli altri comandi (classi separate?) ereditano il metodo ed eseguono ognuno la propria logica.
+Prima di eseguire il metodo execute, il comando accetta un parametro CanExecute() che verifica che il comando può essere eseguito oppure no

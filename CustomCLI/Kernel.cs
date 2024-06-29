@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using CustomCLI.Commands;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection.Emit;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
@@ -38,7 +40,7 @@ public class Kernel
                     Cls();
                     break;
                 case CliCommands.Echo:
-                    CheckSyntax(args, CliCommands.Echo, Echo);
+                    CheckSyntax(args, CliCommands.Echo, EchoCommand.Execute);
                     break;
                 case CliCommands.Cd:
                     CheckSyntax(args, CliCommands.Cd, Cd);
@@ -137,7 +139,7 @@ public class Kernel
             ArgsNum = args.Length,
             LastArgIndex = fileIndex,
             LastArgName = args[fileIndex],
-            Folders = args.Take(fileIndex).ToArray()
+            Folders = string.Join('/', args.Take(fileIndex))
         };
     }
     public static VirtualFile GetVirtualFile(string file)
@@ -161,6 +163,7 @@ public class Kernel
         return dir.Folders.Where(f => f.Name.Equals(name)).Count() != 0;
     }
 
+    #region Commands
     private static void Help()
     {
         Console.WriteLine("Command list:");
@@ -178,9 +181,7 @@ public class Kernel
         var levels = arg.Split('/');
         foreach (var level in levels)
         {
-            if (Dirs[Dept].Folders.Select(s => s.Name)
-                .Where(w => w.Equals(level))
-                .Count() == 0)
+            if (!FolderExists(level))
             {
                 Console.WriteLine($"No such directory: {level}");
                 return;
@@ -215,12 +216,12 @@ public class Kernel
 
         if (compositePath.ArgsNum > 1)
         {
-            if (!FolderExists(compositePath.Folders[0]))
+            if (!FolderExists(compositePath.Folders))
             {
-                Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
+                Console.WriteLine($"No such folder: {compositePath.Folders}");
                 return;
             }
-            Cd(compositePath.Folders[0]);
+            Cd(compositePath.Folders);
 
             if (Enum.TryParse<FileExtension>(splittedArg[splittedArg.Length - 1], ignoreCase: true, out var extension2))
             {
@@ -288,12 +289,12 @@ public class Kernel
         CompositePath compositePath = UnpackPath(arg);
         if (compositePath.ArgsNum > 1)
         {
-            if (!FolderExists(compositePath.Folders[0]))
+            if (!FolderExists(compositePath.Folders))
             {
-                Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
+                Console.WriteLine($"No such folder: {compositePath.Folders}");
                 return;
             }
-            Cd(compositePath.Folders[0]);
+            Cd(compositePath.Folders);
 
             if (!FileExists(compositePath.LastArgName))
             {
@@ -319,13 +320,13 @@ public class Kernel
         //we can use the GetCurrentDir method and change directories when needed
         if (compositePath.ArgsNum > 1)
         {
-            //checking folder prior folder to create
-            if(!FolderExists(compositePath.Folders[0]))
+            //we are repeating the same logic for the Cd method!!!
+            if(!FolderExists(compositePath.Folders))
             {
-                Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
+                Console.WriteLine($"No such folder: {compositePath.Folders}");
                 return;
             }
-            Cd(compositePath.Folders[0]);
+            Cd(compositePath.Folders);
 
             if (FolderExists(compositePath.LastArgName))
             {
@@ -373,15 +374,12 @@ public class Kernel
         //need to factor better the code
         if (compositePath.ArgsNum > 1)
         {
-            for(int i = 0; i < compositePath.ArgsNum - 1; i++)
+            if (!FolderExists(compositePath.Folders))
             {
-                if (!FolderExists(compositePath.Folders[i]))
-                {
-                    Console.WriteLine($"No such folder: {compositePath.Folders[i]}");
-                    return;
-                }
-                Cd(compositePath.Folders[i]);
+                Console.WriteLine($"No such folder: {compositePath.Folders}");
+                return;
             }
+            Cd(compositePath.Folders);
 
             if (!FolderExists(compositePath.LastArgName))
             {
@@ -452,12 +450,12 @@ public class Kernel
 
         if (compositePath.ArgsNum > 1)
         {
-            if (!FolderExists(compositePath.Folders[0]))
+            if (!FolderExists(compositePath.Folders))
             {
-                Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
+                Console.WriteLine($"No such folder: {compositePath.Folders}");
                 return;
             }
-            Cd(compositePath.Folders[0]);
+            Cd(compositePath.Folders);
 
             Console.WriteLine($"Editing {compositePath.LastArgName}");
 
@@ -543,12 +541,12 @@ public class Kernel
         CompositePath compositePath = UnpackPath(arg);
         if(compositePath.ArgsNum > 1)
         {
-            if (!FolderExists(compositePath.Folders[0]))
+            if (!FolderExists(compositePath.Folders))
             {
-                Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
+                Console.WriteLine($"No such folder: {compositePath.Folders}");
                 return;
             }
-            Cd(compositePath.Folders[0]);
+            Cd(compositePath.Folders);
 
             VirtualFile? file2 = GetVirtualFile(compositePath.LastArgName);
             Console.WriteLine(file2.Content);
@@ -574,6 +572,7 @@ public class Kernel
             Console.WriteLine("Arguments correct");
         }
     }
+    #endregion
 
     //proviamo a fare l'editor direttamente su questo progetto, ma tieni da conto la logica per il secondo progetto (potrebbe tornare utile in altre circostanze)
     //private static void Edit(string arg)
