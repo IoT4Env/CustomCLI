@@ -186,21 +186,10 @@ public class Kernel
             CdCommand.Execute(arg);
     }
 
-    private static void Fd(string dept)
+    private static void Fd(string arg)
     {
-        int deptInt = Convert.ToInt32(dept);
-        List<string> dirTree = Tree.Where(w => !string.IsNullOrEmpty(w)).ToList();
-        if (dirTree.Count < deptInt)
-        {
-            Console.WriteLine($"Dept too large for current tree: {Tree}");
-            return;
-        }
-        while (deptInt > 0)
-        {
-            deptInt--;
-            Tree.RemoveAt(Tree.Count - 1);
-            Dept--;
-        }
+        if (FdCommand.CanExecute(arg))
+            FdCommand.Execute(arg);
     }
 
     private static void Touch(string arg)
@@ -281,31 +270,21 @@ public class Kernel
     private static void Rm(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        if (compositePath.ArgsNum > 1)
-        {
-            if (!FolderExists(compositePath.Folders))
-            {
-                Console.WriteLine($"No such folder: {compositePath.Folders}");
-                return;
-            }
-            Cd(compositePath.Folders);
 
-            if (!FileExists(compositePath.LastArgName))
+        if (RmCommand.CheckPathLength(compositePath))
+        {
+            CdCommand.Execute(compositePath.Folders);
+
+            if (RmCommand.CanExecute(compositePath.LastArgName))
             {
-                Console.WriteLine($"No such file: {compositePath.LastArgName}");
-                return;
+                RmCommand.Execute(compositePath.LastArgName);
+                FdCommand.Execute(compositePath.LastArgIndex.ToString());
             }
-            Dirs[Dept].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
-            Fd(compositePath.LastArgIndex.ToString());
             return;
         }
 
-        if (!FileExists(compositePath.LastArgName))
-        {
-            Console.WriteLine($"No such file: {compositePath.LastArgName}");
-            return;
-        }
-        Dirs[Dept].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
+        if (RmCommand.CanExecute(compositePath.LastArgName))
+            RmCommand.Execute(compositePath.LastArgName);
     }
 
     private static void MkDir(string arg)
