@@ -10,7 +10,7 @@ public class FdCommand : ICommand
         List<string> dirTree = Tree.Where(w => !string.IsNullOrEmpty(w)).ToList();
         if (dirTree.Count < deptInt)
         {
-            Console.WriteLine($"Dept too large for current tree: {Tree}");
+            Console.WriteLine($"Dept too large for current tree: {string.Join("\\", Tree)}");
             return false;
         }
         return true;
@@ -19,9 +19,8 @@ public class FdCommand : ICommand
     public static void Execute(string arg)
     {
         int deptInt = Convert.ToInt32(arg);
-        while (deptInt > 0)
+        while (deptInt-- > 0)
         {
-            deptInt--;
             Tree.RemoveAt(Tree.Count - 1);
             Dept--;
         }

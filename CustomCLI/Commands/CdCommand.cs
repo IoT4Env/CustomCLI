@@ -6,6 +6,9 @@ public class CdCommand : ICommand
 {
     public static bool CanExecute(string arg)
     {
+        if(string.IsNullOrEmpty(arg))
+            return false;
+
         var levels = arg.Split('/');
         foreach (var level in levels)
         {
