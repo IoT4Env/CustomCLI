@@ -3,6 +3,11 @@ namespace CustomCLI.Commands;
 
 public class RmCommand : ICommandComposite
 {
+    /// <summary>
+    /// Tracks the specific file present somewhere in the file system and checks if the file exists
+    /// </summary>
+    /// <param name="compositePath"></param>
+    /// <returns>execution permission</returns>
     public static bool CanExecute(CompositePath compositePath)
     {
         VirtualFile file = GetFileByPosition(compositePath.LastArgName, compositePath.ArgsNum - 1);
