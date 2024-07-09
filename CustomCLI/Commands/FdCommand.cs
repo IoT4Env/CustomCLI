@@ -4,6 +4,11 @@ namespace CustomCLI.Commands;
 
 public class FdCommand : ICommand
 {
+    /// <summary>
+    /// validates if the command can execute
+    /// </summary>
+    /// <param name="arg">number of directories to fall from</param>
+    /// <returns>true if the number is valid</returns>
     public static bool CanExecute(string arg)
     {
         int deptInt = Convert.ToInt32(arg);

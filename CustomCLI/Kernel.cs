@@ -218,10 +218,8 @@ public class Kernel
     #region Commands
     private static void Help()
     {
-        Console.WriteLine("Command list:");
-        foreach (CliCommands command in Enum.GetValues(typeof(CliCommands)))
-            Console.Write($"{command.ToString().ToLower()}\t{command.ToDescriptionString()}\n");
-        Console.WriteLine();
+        if(HelpCommand.CanExecute())
+            HelpCommand.Execute();
     }
 
     private static void Cls() => Console.Clear();
