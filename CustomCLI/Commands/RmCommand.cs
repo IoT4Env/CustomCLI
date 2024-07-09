@@ -10,7 +10,9 @@ public class RmCommand : ICommandComposite
     /// <returns>execution permission</returns>
     public static bool CanExecute(CompositePath compositePath)
     {
-        VirtualFile file = GetFileByPosition(compositePath.LastArgName, compositePath.ArgsNum - 1);
+        var offset = Tree.Count - compositePath.ArgsNum;
+
+        VirtualFile file = GetFileByPosition(compositePath.LastArgName, offset);
         if (file is null)
         {
             Console.WriteLine($"No such file: {compositePath.LastArgName}");
@@ -23,6 +25,9 @@ public class RmCommand : ICommandComposite
     /// Removes the specified file
     /// </summary>
     /// <param name="compositePath">file name or path-to-file string</param>
-    public static void Execute(CompositePath compositePath) =>
-        Dirs[compositePath.ArgsNum - 1].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
+    public static void Execute(CompositePath compositePath)
+    {
+        var offset = Tree.Count - compositePath.ArgsNum;
+        Dirs[offset].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
+    }
 }

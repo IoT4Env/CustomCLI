@@ -238,76 +238,9 @@ public class Kernel
     private static void Touch(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        var splittedArg = compositePath.LastArgName.Split('.');
 
-        if (compositePath.ArgsNum > 1)
-        {
-            if (!FolderExists(compositePath.Folders))
-            {
-                Console.WriteLine($"No such folder: {compositePath.Folders}");
-                return;
-            }
-            Cd(compositePath.Folders);
-
-            if (Enum.TryParse<FileExtension>(splittedArg[splittedArg.Length - 1], ignoreCase: true, out var extension2))
-            {
-                ConsoleColor color = 0;
-
-                switch (extension2)
-                {
-                    case FileExtension.Txt:
-                        color = (ConsoleColor)FileExtension.Txt;
-                        break;
-                    case FileExtension.Cs:
-                        color = (ConsoleColor)FileExtension.Cs;
-                        break;
-                    case FileExtension.Zip:
-                        color = (ConsoleColor)FileExtension.Zip;
-                        break;
-                    case FileExtension.Exe:
-                        color = (ConsoleColor)FileExtension.Exe;
-                        break;
-                }
-
-                Dirs[Dept].Files.Add(new VirtualFile
-                {
-                    Color = color,
-                    Name = compositePath.LastArgName,
-                    Content = string.Empty
-                });
-            }
-
-            Fd(compositePath.LastArgIndex.ToString());
-            return;
-        }
-
-        if (Enum.TryParse<FileExtension>(splittedArg[splittedArg.Length - 1], ignoreCase: true, out var extension))
-        {
-            ConsoleColor color = 0;
-
-            switch (extension)
-            {
-                case FileExtension.Txt:
-                    color = (ConsoleColor)FileExtension.Txt;
-                    break;
-                case FileExtension.Cs:
-                    color = (ConsoleColor)FileExtension.Cs;
-                    break;
-                case FileExtension.Zip:
-                    color = (ConsoleColor)FileExtension.Zip;
-                    break;
-                case FileExtension.Exe:
-                    color = (ConsoleColor)FileExtension.Exe;
-                    break;
-            }
-
-            Dirs[Dept].Files.Add(new VirtualFile
-            {
-                Color = color,
-                Name = compositePath.LastArgName,
-                Content = string.Empty
-            });
-        }
+        if(TouchCommand.CanExecute(compositePath))
+            TouchCommand.Execute(compositePath);
     }
 
     private static void Rm(string arg)
