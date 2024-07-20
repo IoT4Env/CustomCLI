@@ -7,11 +7,12 @@ public class RmCommand : ICommandComposite
     /// <summary>
     /// Tracks the specific file present somewhere in the file system and checks if the file exists
     /// </summary>
-    /// <param name="compositePath"></param>
+    /// <param name="compositePath">file name or path-to-file string</param>
     /// <returns>execution permission</returns>
     public static bool CanExecute(CompositePath compositePath)
     {
-        VirtualFile file = GetFileByPosition(compositePath.LastArgName, compositePath.ArgsNum - 1);
+        var offset = Tree.Count + compositePath.ArgsNum - 2;
+        VirtualFile file = GetFileByPosition(compositePath.LastArgName, offset);
         if (file is null)
         {
             Console.WriteLine($"No such file: {compositePath.LastArgName}");
@@ -26,6 +27,7 @@ public class RmCommand : ICommandComposite
     /// <param name="compositePath">file name or path-to-file string</param>
     public static void Execute(CompositePath compositePath)
     {
-        Dirs[compositePath.ArgsNum - 1].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
+        var offset = Tree.Count + compositePath.ArgsNum - 2;
+        Dirs[offset].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
     }
 }
