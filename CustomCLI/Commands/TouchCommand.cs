@@ -1,4 +1,5 @@
-﻿using static CustomCLI.Kernel;
+﻿using CustomCLI.Commands.ICommands;
+using static CustomCLI.Kernel;
 
 namespace CustomCLI.Commands;
 
@@ -6,9 +7,7 @@ public class TouchCommand : ICommandComposite
 {
     public static bool CanExecute(CompositePath compositePath)
     {
-        var offset = Tree.Count - compositePath.ArgsNum;
-
-        VirtualFile file = GetFileByPosition(compositePath.LastArgName, offset);
+        VirtualFile file = GetFileByPosition(compositePath.LastArgName, compositePath.ArgsNum - 1);
         if (file is not null)
         {
             Console.WriteLine($"File already exists: {compositePath.LastArgName}");
@@ -41,9 +40,7 @@ public class TouchCommand : ICommandComposite
                     break;
             }
 
-            var offset = Tree.Count - compositePath.ArgsNum;
-
-            Dirs[offset].Files.Add(new VirtualFile
+            Dirs[compositePath.ArgsNum - 1].Files.Add(new VirtualFile
             {
                 Color = color,
                 Name = compositePath.LastArgName,

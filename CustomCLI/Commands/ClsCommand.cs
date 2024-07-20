@@ -1,4 +1,6 @@
-﻿namespace CustomCLI.Commands;
+﻿using CustomCLI.Commands.ICommands;
+
+namespace CustomCLI.Commands;
 
 public class ClsCommand : ICommand
 {
