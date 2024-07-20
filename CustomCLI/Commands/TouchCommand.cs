@@ -9,7 +9,7 @@ public class TouchCommand : ICommandComposite
     /// Tracks the specific file present somewhere in the file system and checks if the file exists
     /// </summary>
     /// <param name="compositePath">file name or path-to-file string</param>
-    /// <returns>execution permission</returns>
+    /// <returns>create permission</returns>
     public static bool CanExecute(CompositePath compositePath)
     {
         var offset = Tree.Count + compositePath.ArgsNum - 2;

@@ -9,10 +9,10 @@ public class MkDirCommand : ICommandComposite
     /// Tracks the specific directory present somewhere in the file system and checks if it already exists
     /// </summary>
     /// <param name="compositePath">directory name</param>
-    /// <returns>execution permission</returns>
+    /// <returns>create permission</returns>
     public static bool CanExecute(CompositePath compositePath)
     {
-        var offset = Tree.Count + compositePath.ArgsNum - 2;
+        var offset = Tree.Count + compositePath.ArgsNum - 2;//subtract 2 because of 2 lengths (not indexes) added togeter
         CurrentDir dir = GetDirectoryByPosition(compositePath.LastArgName, offset);
 
         if (dir is not null)
@@ -27,10 +27,10 @@ public class MkDirCommand : ICommandComposite
     /// Creates the specified directory
     /// </summary>
     /// <param name="compositePath">directory name (not working with paths like folder1/folder2 yet)</param>
-
     public static void Execute(CompositePath compositePath)
     {
-        Dirs[Dept].Folders.Add(new VirtualFolder
+        var offset = Tree.Count + compositePath.ArgsNum - 2;
+        Dirs[offset].Folders.Add(new VirtualFolder
         {
             Color = ConsoleColor.Blue,
             Name = compositePath.LastArgName
@@ -39,7 +39,7 @@ public class MkDirCommand : ICommandComposite
         Dirs.Add(new CurrentDir
         {
             Name = compositePath.LastArgName,
-            Dept = compositePath.LastArgIndex
+            Dept = offset
         });
     }
 }
