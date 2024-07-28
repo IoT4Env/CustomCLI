@@ -51,7 +51,7 @@ public class EditCommand : ICommandComposite
         }
         while (cki.Key != ConsoleKey.Escape);
 
-        CurrentDir dir = GetCurrentDir();
+        VirtualFolder dir = GetCurrentDir();
         dir.Files.FirstOrDefault(f => f.Name.Equals(compositePath.LastArgName)).Content = sb.ToString();
     }
 }
