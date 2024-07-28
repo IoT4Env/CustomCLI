@@ -4,7 +4,7 @@ namespace CustomCLI;
 
 public class Kernel
 {
-    public static List<CurrentDir> Dirs { get; set; } = new() { new CurrentDir { Name = string.Empty, Dept = -1 } };
+    public static List<VirtualFolder> Dirs { get; set; } = new List<VirtualFolder> { new VirtualFolder { Name = string.Empty, Dept = -1 } };
     public static bool IsExit { get; set; } = false;
     public static int Dept { get; set; } = 0;
     public static List<string> Tree { get; set; } = new() { string.Empty };
@@ -102,7 +102,7 @@ public class Kernel
     /// Gets the directory where the command is written
     /// </summary>
     /// <returns>directory object where the command is written</returns>
-    public static CurrentDir GetCurrentDir() =>
+    public static VirtualFolder GetCurrentDir() =>
         Dirs.FirstOrDefault(d => d.Name.Equals(Tree[Tree.Count - 1]) && d.Dept == Dept - 1);
 
     /// <summary>
@@ -111,7 +111,7 @@ public class Kernel
     /// <param name="folder">folder name</param>
     /// <param name="dept">dept number</param>
     /// <returns>directory object identifid in the file system</returns>
-    public static CurrentDir GetDirectoryByPosition(string folder, int dept) =>
+    public static VirtualFolder GetDirectoryByPosition(string folder, int dept) =>
         Dirs.FirstOrDefault(d => d.Name.Equals(folder) && d.Dept == dept);
 
     /// <summary>
@@ -136,7 +136,7 @@ public class Kernel
     /// </summary>
     /// <param name="dir">object directory</param>
     /// <returns>true if folder is empty, false other whise</returns>
-    public static bool IsFolderEmpty(CurrentDir dir) =>
+    public static bool IsFolderEmpty(VirtualFolder dir) =>
         dir.Folders.Count == 0 && dir.Files.Count == 0;
 
     /// <summary>
@@ -146,7 +146,7 @@ public class Kernel
     /// <returns>true if file exists, false other whise</returns>
     public static bool FileExists(string name)
     {
-        CurrentDir? dir = GetCurrentDir();
+        VirtualFolder? dir = GetCurrentDir();
         return dir.Files.Where(file => file.Name.Equals(name)).Count() != 0;
     }
     /// <summary>
@@ -157,7 +157,7 @@ public class Kernel
 
     public static bool FolderExists(string name)
     {
-        CurrentDir? dir = GetCurrentDir();
+        VirtualFolder? dir = GetCurrentDir();
         name = name.Replace("/", "");
         return dir.Folders.Where(f => f.Name.Equals(name)).Count() != 0;
     }

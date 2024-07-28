@@ -13,7 +13,7 @@ public class MkDirCommand : ICommandComposite
     public static bool CanExecute(CompositePath compositePath)
     {
         var offset = Tree.Count + compositePath.ArgsNum - 2;//subtract 2 because of 2 lengths (not indexes) added togeter
-        CurrentDir dir = GetDirectoryByPosition(compositePath.LastArgName, offset);
+        VirtualFolder dir = GetDirectoryByPosition(compositePath.LastArgName, offset);
 
         if (dir is not null)
         {
@@ -24,19 +24,24 @@ public class MkDirCommand : ICommandComposite
     }
 
     /// <summary>
-    /// Creates the specified directory
+    /// Creates a folder inside the current folder AND adds the folder in the Dirs list.
     /// </summary>
     /// <param name="compositePath">directory name (not working with paths like folder1/folder2 yet)</param>
     public static void Execute(CompositePath compositePath)
     {
         var offset = Tree.Count + compositePath.ArgsNum - 2;
+
+        //horizontal scaling:
+        //Inside one folder there are n folders (and files)
         Dirs[offset].Folders.Add(new VirtualFolder
         {
             Color = ConsoleColor.Blue,
-            Name = compositePath.LastArgName
+            Name = compositePath.LastArgName,
         });
 
-        Dirs.Add(new CurrentDir
+        //a reduncancy of the previus VirtualFolder
+        //lets the ls command know in which folder the user currently is
+        Dirs.Add(new VirtualFolder
         {
             Name = compositePath.LastArgName,
             Dept = offset
