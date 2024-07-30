@@ -10,7 +10,7 @@ Console.WriteLine("""
 while (!Kernel.IsExit)
 {
     Console.ForegroundColor = ConsoleColor.Gray;
-    Console.Write(@$"Z:{string.Join("\\", Kernel.Tree)}>");
+    Console.Write(@$"Z:{string.Join("/", Kernel.Tree)}>");
     string[] userInput = Console.ReadLine().Split(' ');
 
     Kernel.Execute(userInput);
