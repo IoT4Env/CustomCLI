@@ -9,21 +9,21 @@ public class Kernel
     public static int Dept { get; set; } = 0;
     public static List<string> Tree { get; set; } = new() { string.Empty };
 
-    private static List<Action> SimpleCommands = new() { Help, Cls, Ls, Exit };
+    private static List<Action> SimpleCommands { get; } = new() { Help, Cls, Ls, Exit };//readonly property
 
     private static Dictionary<CliCommands, Action<string>> ComplexCommands = new()
            {
-               { CliCommands.Echo, arg => Echo(arg) },
-               { CliCommands.Cd, arg => Cd(arg) },
-               { CliCommands.Fd, arg => Fd(arg) },
-               { CliCommands.Touch, arg => Touch(arg) },
-               { CliCommands.Rm, arg => Rm(arg) },
-               { CliCommands.Mkdir, arg => MkDir(arg) },
-               { CliCommands.Rmdir, arg => Rmdir(arg) },
-               { CliCommands.Edit, arg => Edit(arg) },
-               { CliCommands.Cat, arg => Cat(arg) },
-               { CliCommands.Mv, arg => Mv(arg) },
-               { CliCommands.Cp, arg => Cp(arg) }
+               { CliCommands.Echo, Echo },//arg => Echo(arg)
+               { CliCommands.Cd, Cd },
+               { CliCommands.Fd, Fd },
+               { CliCommands.Touch, Touch },
+               { CliCommands.Rm, Rm },
+               { CliCommands.Mkdir, MkDir },
+               { CliCommands.Rmdir, Rmdir },
+               { CliCommands.Edit, Edit },
+               { CliCommands.Cat, Cat },
+               { CliCommands.Mv, Mv },
+               { CliCommands.Cp, Cp }
            };
 
     /// <summary>
@@ -37,23 +37,19 @@ public class Kernel
 
         if (Enum.TryParse<CliCommands>(args[0], ignoreCase: true, out var command))
         {
-            //we are checking if the command is one of the "simple" command
-            //The SimpleCommands list is not exessivly long (and probably will stay as it is)
-            //So we can acknoledge more iteration than needed...
-            foreach (var simpleCommand in SimpleCommands)
+            var simpleCommand = SimpleCommands.FirstOrDefault(c => c.Method.Name.Equals(command.ToString()));
+            if(simpleCommand != null)
             {
-                if (simpleCommand.Method.Name.Equals(command.ToString()))
-                {
-                    simpleCommand.Invoke();
-                    return;
-                }
+                simpleCommand.Invoke();
+                return;
             }
 
-            //if no simple commands are found, it finds the "complex" command and executes it
-            Action<string> method = ComplexCommands.FirstOrDefault(c => c.Key.Equals(command)).Value;
-
-            CheckSyntax(args, method);
-            return;
+            //if no simple commands are found, it finds the "complex" command and calls the CheckSyntax method
+            if (ComplexCommands.TryGetValue(command, out Action<string>? method))
+            {
+                CheckSyntax(args, method);
+                return;
+            }
         }
         Console.WriteLine($"No such command: {args[0]}");
     }
