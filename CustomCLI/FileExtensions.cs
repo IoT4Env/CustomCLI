@@ -1,6 +1,6 @@
 ﻿namespace CustomCLI;
 
-public enum FileExtension
+public enum FileExtensions
 {
     Txt = ConsoleColor.White,
     Cs = ConsoleColor.Magenta,
