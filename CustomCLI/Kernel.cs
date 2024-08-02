@@ -22,8 +22,9 @@ public class Kernel
                { CliCommands.Rmdir, Rmdir },
                { CliCommands.Edit, Edit },
                { CliCommands.Cat, Cat },
+               { CliCommands.X3i, X3i },
                { CliCommands.Mv, Mv },
-               { CliCommands.Cp, Cp }
+               { CliCommands.Cp, Cp },
            };
 
     /// <summary>
@@ -266,6 +267,15 @@ public class Kernel
 
         if (CatCommand.CanExecute(compositePath))
             CatCommand.Execute(compositePath);
+    }
+
+    private static void X3i(string arg)
+    {
+        CompositePath compositePath = UnpackPath(arg);
+
+        if (X3iCommand.CanExecute(compositePath))
+            X3iCommand.Execute(compositePath);
+
     }
 
     private static void Mv(string arg)

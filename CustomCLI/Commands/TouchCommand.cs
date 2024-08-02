@@ -49,6 +49,9 @@ public class TouchCommand : ICommandComposite
                 case FileExtension.Exe:
                     color = (ConsoleColor)FileExtension.Exe;
                     break;
+                case FileExtension.X3i:
+                    color = (ConsoleColor)FileExtension.X3i;
+                    break;
             }
 
             var offset = Tree.Count + compositePath.ArgsNum - 2;

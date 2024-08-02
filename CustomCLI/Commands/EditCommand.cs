@@ -27,28 +27,30 @@ public class EditCommand : ICommandComposite
         {
             key = Console.ReadKey().KeyChar;
 
+            //bitwise operator to check for the \r char (just to speed up the check for special keys like "enter" on every key press)
+            //shortly, we are checking if key bits are complementary to 0x0D with the bitwise XOR operator
             //Just found out the power of conditional printing!
             //Might come useful in other cases
             //Console.Write(((key ^ 0x0D) == 0x00) ? '\n' //if is enter
             //            : ((key ^ 0x08) == 0x00) ? " \b"//if is delete
             //            : "");//if is canc
 
-                
-            //bitwise operator to check for the \r char (just to speed up the check for special keys like "enter" on every key press)
-            //shortly, we are checking if key bits are complementary to 0x0D with the bitwise XOR operator
-            if ((key ^ 0x0D) == 0x00)//if is enter
+            switch (key)
             {
-                Console.WriteLine();
-                sb.Append('\n');//the returned key is \r, which is not the correct EOL char for a file
-                continue;
+                case '\x0D'://if is enter
+                    Console.WriteLine();
+                    sb.Append('\n');//the returned key is \r, which is not the correct EOL char for a file
+                    break;
+                case '\x08'://if is delete
+                    Console.WriteLine();
+                    sb.Append('\n');//the returned key is \r, which is not the correct EOL char for a file
+                    break;
+                case '\u001b'://need to check if esc twice to avoid the esc character to be inserted in the string builder
+                    break;
+                default:
+                    sb.Append(key);
+                    break;
             }
-            else if ((key ^ 0x08) == 0x00)//if is delete
-            {
-                Console.Write(" \b");
-                sb.Remove(sb.Length - 1, 1);
-            }
-
-            sb.Append(key);
         }
         while (key != '\u001b');//esc is \u001b
 

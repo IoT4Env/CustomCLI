@@ -33,10 +33,12 @@ public enum CliCommands
     Edit,
     [Description("Prints file content on the terminal")]
     Cat,
+    [Description("Executes .x3i files which contains the custom cli syntax")]
+    X3i,
     [Description("Moves file from one folder to another with the following syntax:\n\tmv file.txt->folder")]
     Mv,
     [Description("Copies the file from one location to another with the following syntax\n\tcp file.txt->folder")]
-    Cp
+    Cp,
 }
 
 public static class CliCommandsExtension

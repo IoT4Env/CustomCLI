@@ -3,7 +3,8 @@
 public enum FileExtension
 {
     Txt = ConsoleColor.White,
-    Cs = ConsoleColor.Green,
+    Cs = ConsoleColor.Magenta,
     Zip = ConsoleColor.Red,
-    Exe = ConsoleColor.Cyan
+    Exe = ConsoleColor.Cyan,
+    X3i = ConsoleColor.Green
 }
