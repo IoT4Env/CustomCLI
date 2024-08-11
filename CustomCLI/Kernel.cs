@@ -57,13 +57,13 @@ public class Kernel
 
     private static void CheckSyntax(string[] args, Action<string> commandExec)
     {
-        args = args.Where(w => !string.IsNullOrEmpty(w)).ToArray();
+        args = args.Select(w => w.Trim()).ToArray();
 
         switch (args.Length)
         {
             case 1:
                 Console.WriteLine($"{commandExec.Method.Name.ToLower()} requires param");
-                break;
+                return;
             case 2:
                 int quoteCount = args[1].Count(c => c.Equals('"'));
                 if (quoteCount is 2 or 0)
@@ -73,25 +73,76 @@ public class Kernel
 
                 break;
             case > 2:
-                int count = 2;
-                for (int i = 2; i < args.Length; i++)
+
+                /*
+                 "ciao mondo"
+                "ciao mondo" excedees
+                exceedes "ciao mondo"
+                "ciao mondo
+                 */
+
+                //in the future, try to separate args as if you where writing them in the console
+                var quotedArgs = args.Skip(1).Where(arg => arg.Contains('"')).ToArray();
+                var startQuote = Array.FindIndex(args, c => c.Equals(quotedArgs[0]));
+                var finalQuote = Array.FindIndex(args, c => c.Equals(quotedArgs[1]));
+                var quotedString = args[startQuote..finalQuote];
+                var remainingArgs = args[finalQuote..args.Length];
+
+                if (quotedArgs.Count() is not 2 or not 0)
                 {
-                    count++;
-                    args[1] += $" {args[i]}";
-                    if (args[i][args[i].Length - 1].Equals('"'))
-                        break;
+
                 }
-
-                bool isQuoted = args[1][0].Equals('"') && args[1][args[1].Length - 1].Equals('"');
-                if (isQuoted && args.Length == count)
-                    commandExec.Invoke(args[1].Replace("\"", ""));
-                else if (isQuoted)
-                    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[count..args.Length])}");
-                else
-                    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[2..args.Length])}");
-
                 break;
+
+                //quoteCount = args[1].Count(c => c.Equals('"'));
+                //if(quoteCount is 2 or 0 && args.Length == count)//expencted input: command "this is the input"
+                //{
+                //    goto case 0;//invoke the command
+                //}
+                //else if (quoteCount is 2 or 0)//expencted input: command "this is the input" but it exceedes
+                //{
+                //    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[count..args.Length])}");
+                //}
+                //else
+                //{
+                //    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[2..args.Length])}");
+                //}
         }
+
+
+        //int count = 0;
+        //for (int i = 2; i < args.Length; i++)
+        //{
+        //    count++;
+        //    args[1] += $" {args[i]}";
+        //    if (args[i][args[i].Length - 1].Equals('"'))
+        //        break;
+        //}
+
+        //quoteCount = args[1].Count(c => c.Equals('"'));
+        //if(quoteCount is 2 or 0 && args.Length == count)//expencted input: command "this is the input"
+        //{
+        //    goto case 0;//invoke the command
+        //}
+        //else if (quoteCount is 2 or 0)//expencted input: command "this is the input" but it exceedes
+        //{
+        //    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[count..args.Length])}");
+        //}
+        //else
+        //{
+        //    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[2..args.Length])}");
+        //}
+
+        //bool isQuoted = args[1][0].Equals('"') && args[1][args[1].Length - 1].Equals('"');
+        //if (isQuoted && args.Length == count)
+        //    goto Invoke;
+        ////else
+        ////    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: " + (isQuoted ? $"{string.Join(' ', args[count..args.Length])}" : $"{string.Join(' ', args[2..args.Length])}"));
+
+        //else if (isQuoted)
+        //    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[count..args.Length])}");
+        //else
+        //    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[2..args.Length])}");
     }
 
     #region Query file system
