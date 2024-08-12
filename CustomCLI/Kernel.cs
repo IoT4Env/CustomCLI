@@ -25,6 +25,7 @@ public class Kernel
                { CliCommands.X3i, X3i },
                { CliCommands.Mv, Mv },
                { CliCommands.Cp, Cp },
+               { CliCommands.Mirror, Mirror },
            };
 
     /// <summary>
@@ -221,6 +222,12 @@ public class Kernel
             FdCommand.Execute(arg);
     }
 
+    private static void Mirror(string arg)
+    {
+        if (MirrorCommand.CanExecute(arg))
+            MirrorCommand.Execute(arg);
+    }
+
     private static void Touch(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
@@ -300,6 +307,7 @@ public class Kernel
         if(CpCommand.CanExecuteSource(source) && CpCommand.CanExecuteDestination(destination))
             CpCommand.Execute(source, destination);
     }
+
     #endregion
 
     //proviamo a fare l'editor direttamente su questo progetto, ma tieni da conto la logica per il secondo progetto (potrebbe tornare utile in altre circostanze)

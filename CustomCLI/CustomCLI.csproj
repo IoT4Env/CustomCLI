@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Template\Documents\" />
+    <Folder Include="Template\EmptyFolder\" />
+  </ItemGroup>
+
 </Project>
