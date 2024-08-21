@@ -33,18 +33,23 @@ public class MkDirCommand : ICommandComposite
 
         //horizontal scaling:
         //Inside one folder there are n folders (and files)
+        var foldersCheck = compositePath.Folders.Equals(string.Empty) ? "" : $"{compositePath.Folders}/";
         Dirs[offset].Folders.Add(new VirtualFolder
         {
             Color = ConsoleColor.Blue,
             Name = compositePath.LastArgName,
+            //join the position of the command execution, the folders provided to the argument, and the folder name
+            Path = $"{string.Join('/', Tree)}/{foldersCheck}{compositePath.LastArgName}",
         });
 
         //a reduncancy of the previus VirtualFolder
         //lets the ls command know in which folder the user currently is
         Dirs.Add(new VirtualFolder
         {
+            Dept = offset,
             Name = compositePath.LastArgName,
-            Dept = offset
+            //join the position of the command execution, the folders provided to the argument, and the folder name
+            Path = $"{string.Join('/', Tree)}/{foldersCheck}{compositePath.LastArgName}",
         });
     }
 }
