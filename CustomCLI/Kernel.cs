@@ -25,6 +25,7 @@ public class Kernel
                { CliCommands.X3i, X3i },
                { CliCommands.Mv, Mv },
                { CliCommands.Cp, Cp },
+               { CliCommands.Mirror, Mirror },
            };
 
     /// <summary>
@@ -220,6 +221,33 @@ public class Kernel
         name = name.Replace("/", "");
         return dir.Folders.Where(f => f.Name.Equals(name)).Count() != 0;
     }
+
+    public static void BrowseDirectory(VirtualFolder targetFolder, Action<VirtualFile> fileAction, Action<VirtualFolder> folderAction)
+    {
+        var mutableFileCount = targetFolder.Files.Count;
+        for(int i = 0; i < mutableFileCount; i++)
+        {
+            if(mutableFileCount != targetFolder.Files.Count)
+                mutableFileCount = targetFolder.Files.Count;
+            fileAction.Invoke(targetFolder.Files[i]);
+        }
+
+        var mutableFolderCount = targetFolder.Folders.Count;
+        for (int i = 0; i < mutableFolderCount; i++)
+        {
+            if (mutableFolderCount != targetFolder.Folders.Count)
+                mutableFolderCount = targetFolder.Folders.Count;
+            folderAction.Invoke(targetFolder.Folders[i]);
+
+            //already checkd if the list has beed changed
+            if (i <= mutableFolderCount)
+                continue;
+
+            if (!IsFolderEmpty(targetFolder.Folders[i]))
+                BrowseDirectory(targetFolder.Folders[i], fileAction, folderAction);
+        }
+        Console.WriteLine();
+    }
     #endregion
 
     /// <summary>
@@ -237,6 +265,10 @@ public class Kernel
     public static CompositePath UnpackPath(string arg)
     {
         string[] args = arg.Split('/');
+
+        //chech if the path begins with '/'
+        if (args[0].Equals(string.Empty))
+            args = args[1..args.Length];
         int fileIndex = args.Length - 1;
         return new CompositePath()
         {
@@ -270,6 +302,12 @@ public class Kernel
     {
         if (FdCommand.CanExecute(arg))
             FdCommand.Execute(arg);
+    }
+
+    private static void Mirror(string arg)
+    {
+        if (MirrorCommand.CanExecute(arg))
+            MirrorCommand.Execute(arg);
     }
 
     private static void Touch(string arg)
@@ -351,6 +389,7 @@ public class Kernel
         if(CpCommand.CanExecuteSource(source) && CpCommand.CanExecuteDestination(destination))
             CpCommand.Execute(source, destination);
     }
+
     #endregion
 
     //proviamo a fare l'editor direttamente su questo progetto, ma tieni da conto la logica per il secondo progetto (potrebbe tornare utile in altre circostanze)

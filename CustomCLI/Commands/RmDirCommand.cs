@@ -19,11 +19,23 @@ public class RmDirCommand : ICommandComposite
         }
 
         var offset = Tree.Count + compositePath.ArgsNum - 2;
-        if (!IsFolderEmpty(GetDirectoryByPosition(compositePath.LastArgName, offset)))
+        VirtualFolder targetFolder = GetDirectoryByPosition(compositePath.LastArgName, offset);
+        if (!IsFolderEmpty(targetFolder))
         {
             //TODO:
             //Generate script that deletes all files and folders inside directory if the user wants to
-            Console.WriteLine($"\n{compositePath.LastArgName} is not empty.\nRemove elements in it first");
+            Console.WriteLine($"\n{compositePath.LastArgName} contains the following elements:");
+
+            BrowseDirectory(targetFolder, EchoCommand.EchoFileName, EchoCommand.EchoFolderName);
+
+            Console.WriteLine("Would you like to remove them? [y/N]");
+            string? response = Console.ReadLine();
+            if (response.Equals("y"))
+            {
+                BrowseDirectory(targetFolder, RmNestedFile, RmNestedFolder);
+                return true;
+            }
+
             return false;
         }
         return true;
@@ -36,6 +48,26 @@ public class RmDirCommand : ICommandComposite
     public static void Execute(CompositePath compositePath)
     {
         var offset = Tree.Count + compositePath.ArgsNum - 2;
+        var a = Dirs[offset].Folders;
+        //Remove from Dirs
+        Dirs.Remove(Dirs.FirstOrDefault(f => f.Name.Equals(compositePath.LastArgName)));
+
+        var b = Dirs[offset].Folders;
+
+        //Actual directory deletion
         Dirs[offset].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
+    }
+
+    private static void RmNestedFile(VirtualFile file)
+    {
+        //string fullPath = $"{string.Join('/', Tree)}/{file.Name}";
+        CompositePath compositePath = UnpackPath(file.Path);
+        RmCommand.Execute(compositePath);
+    }
+
+    private static void RmNestedFolder(VirtualFolder folder)
+    {
+        CompositePath compositePath = UnpackPath(folder.Path);
+        Execute(compositePath);
     }
 }

@@ -19,6 +19,8 @@ public enum CliCommands
     Cd,
     [Description("fall directory, meaning it descend by a specific amount the fs")]
     Fd,
+    [Description("Takes the full path of a REAL folder in the PC and creates the structure inside this simulated environment")]
+    Mirror,
     [Description("creates file")]
     Touch,
     [Description("removes file")]
