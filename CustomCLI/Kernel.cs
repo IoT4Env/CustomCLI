@@ -1,4 +1,6 @@
 ﻿using CustomCLI.Commands;
+using System.IO.Enumeration;
+using System.Linq;
 
 namespace CustomCLI;
 
@@ -8,11 +10,22 @@ public class Kernel
     public static bool IsExit { get; set; } = false;
     public static int Dept { get; set; } = 0;
     public static List<string> Tree { get; set; } = new() { string.Empty };
+    
+    //when "installing" new commands, the name should be added here
+    private static List<string> ExternalCommands { get; set; } = new();
 
     private static List<Action> SimpleCommands { get; } = new() { Help, Cls, Ls, Exit };//readonly property
 
-    private static Dictionary<CliCommands, Action<string>> ComplexCommands = new()
+
+    //todo:
+    //Change folder name from "Commands" to "CliCommands"
+    //For each command type, a new folder has to be added
+    private static Dictionary<CliCommands, Action<string>> CliCommandsDict = new()
            {
+               //{CliCommands.Help, Help},
+               //{CliCommands.Cls, Cls },
+               //{CliCommands.Ls, Ls },
+               //{CliCommands.Exit, Exit },
                { CliCommands.Echo, Echo },//arg => Echo(arg)
                { CliCommands.Cd, Cd },
                { CliCommands.Fd, Fd },
@@ -37,8 +50,13 @@ public class Kernel
         if (args[0].Equals(string.Empty))
             return;
 
+
+        //add as many if as of how many commands types there are
+        //CliCommands type, Docker type, Python type, and so on...
         if (Enum.TryParse<CliCommands>(args[0], ignoreCase: true, out var command))
         {
+            var cliCommand = new Command<CliCommands>();
+
             var simpleCommand = SimpleCommands.FirstOrDefault(c => c.Method.Name.Equals(command.ToString()));
             if(simpleCommand != null)
             {
@@ -47,103 +65,58 @@ public class Kernel
             }
 
             //if no simple commands are found, it finds the "complex" command and calls the CheckSyntax method
-            if (ComplexCommands.TryGetValue(command, out Action<string>? method))
+            if (CliCommandsDict.TryGetValue(command, out Action<string>? method))
             {
-                CheckSyntax(args, method);
+                CheckSyntax(args, method, cliCommand);
                 return;
             }
         }
         Console.WriteLine($"No such command: {args[0]}");
     }
 
-    private static void CheckSyntax(string[] args, Action<string> commandExec)
+    //Remember to change Action<string> with Action<CommandSyntax>
+    private static void CheckSyntax<Type>(string[] args, Action<string> commandExec, Command<Type> commandType)
     {
-        args = args.Select(w => w.Trim()).ToArray();
+        args = args.Where(w => !string.IsNullOrEmpty(w)).ToArray();
 
-        switch (args.Length)
+        try
         {
-            case 1:
-                Console.WriteLine($"{commandExec.Method.Name.ToLower()} requires param");
-                return;
-            case 2:
-                int quoteCount = args[1].Count(c => c.Equals('"'));
-                if (quoteCount is 2 or 0)
-                    commandExec.Invoke(args[1].Replace("\"", ""));
-                else
-                    Console.WriteLine("Missing char: \"");
+            CommandSyntax syntax = new();
 
-                break;
-            case > 2:
+            //check case of given options
+            //option written at full (-l, -p, etc...)
+            if (args[1][0].Equals('-'))
+            {
+                syntax.Options = new string[] { args[1] };
 
-                /*
-                 "ciao mondo"
-                "ciao mondo" excedees
-                exceedes "ciao mondo"
-                "ciao mondo
-                 */
-
-                //in the future, try to separate args as if you where writing them in the console
-                var quotedArgs = args.Skip(1).Where(arg => arg.Contains('"')).ToArray();
-                var startQuote = Array.FindIndex(args, c => c.Equals(quotedArgs[0]));
-                var finalQuote = Array.FindIndex(args, c => c.Equals(quotedArgs[1]));
-                var quotedString = args[startQuote..finalQuote];
-                var remainingArgs = args[finalQuote..args.Length];
-
-                if (quotedArgs.Count() is not 2 or not 0)
+                string arguments2 = string.Join(' ', args[2..args.Length]);
+                if(arguments2.Where(s => s.Equals('"')).Count() is 2 or 0)
                 {
-
+                    string quotedString = string.Join(' ', arguments2).Replace("\"", "");
+                    syntax.Args = new string[] { quotedString };
+                    commandExec.Invoke(quotedString);//pass syntax here
+                    return;
                 }
-                break;
+                throw new Exception("Missing char: \"");
+            }
+            
+            //suppose the remaining args are the given command arguments
+            string arguments = string.Join(' ', args[1..args.Length]);
+            if (arguments.Where(s => s.Equals('"')).Count() is 2 or 0)
+            {
+                string quotedString = string.Join(' ', arguments).Replace("\"", "");
+                syntax.Args = new string[] { quotedString };
+                commandExec.Invoke(quotedString);//pass syntax here
+                return;
+            }
+            throw new Exception("Missing char: \"");
 
-                //quoteCount = args[1].Count(c => c.Equals('"'));
-                //if(quoteCount is 2 or 0 && args.Length == count)//expencted input: command "this is the input"
-                //{
-                //    goto case 0;//invoke the command
-                //}
-                //else if (quoteCount is 2 or 0)//expencted input: command "this is the input" but it exceedes
-                //{
-                //    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[count..args.Length])}");
-                //}
-                //else
-                //{
-                //    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[2..args.Length])}");
-                //}
         }
-
-
-        //int count = 0;
-        //for (int i = 2; i < args.Length; i++)
-        //{
-        //    count++;
-        //    args[1] += $" {args[i]}";
-        //    if (args[i][args[i].Length - 1].Equals('"'))
-        //        break;
-        //}
-
-        //quoteCount = args[1].Count(c => c.Equals('"'));
-        //if(quoteCount is 2 or 0 && args.Length == count)//expencted input: command "this is the input"
-        //{
-        //    goto case 0;//invoke the command
-        //}
-        //else if (quoteCount is 2 or 0)//expencted input: command "this is the input" but it exceedes
-        //{
-        //    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[count..args.Length])}");
-        //}
-        //else
-        //{
-        //    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[2..args.Length])}");
-        //}
-
-        //bool isQuoted = args[1][0].Equals('"') && args[1][args[1].Length - 1].Equals('"');
-        //if (isQuoted && args.Length == count)
-        //    goto Invoke;
-        ////else
-        ////    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: " + (isQuoted ? $"{string.Join(' ', args[count..args.Length])}" : $"{string.Join(' ', args[2..args.Length])}"));
-
-        //else if (isQuoted)
-        //    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[count..args.Length])}");
-        //else
-        //    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[2..args.Length])}");
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message.ToString());
+            return;
+        }
     }
 
     #region Query file system
