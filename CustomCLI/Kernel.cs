@@ -1,4 +1,6 @@
 ﻿using CustomCLI.Commands;
+using System.IO.Enumeration;
+using System.Linq;
 
 namespace CustomCLI;
 
@@ -8,11 +10,22 @@ public class Kernel
     public static bool IsExit { get; set; } = false;
     public static int Dept { get; set; } = 0;
     public static List<string> Tree { get; set; } = new() { string.Empty };
+    
+    //when "installing" new commands, the name should be added here
+    private static List<string> ExternalCommands { get; set; } = new();
 
     private static List<Action> SimpleCommands { get; } = new() { Help, Cls, Ls, Exit };//readonly property
 
-    private static Dictionary<CliCommands, Action<string>> ComplexCommands = new()
+
+    //todo:
+    //Change folder name from "Commands" to "CliCommands"
+    //For each command type, a new folder has to be added
+    private static Dictionary<CliCommands, Action<string>> CliCommandsDict = new()
            {
+               //{CliCommands.Help, Help},
+               //{CliCommands.Cls, Cls },
+               //{CliCommands.Ls, Ls },
+               //{CliCommands.Exit, Exit },
                { CliCommands.Echo, Echo },//arg => Echo(arg)
                { CliCommands.Cd, Cd },
                { CliCommands.Fd, Fd },
@@ -37,6 +50,9 @@ public class Kernel
         if (args[0].Equals(string.Empty))
             return;
 
+
+        //add as many if as of how many commands types there are
+        //CliCommands type, Docker type, Python type, and so on...
         if (Enum.TryParse<CliCommands>(args[0], ignoreCase: true, out var command))
         {
             var simpleCommand = SimpleCommands.FirstOrDefault(c => c.Method.Name.Equals(command.ToString()));
@@ -47,7 +63,7 @@ public class Kernel
             }
 
             //if no simple commands are found, it finds the "complex" command and calls the CheckSyntax method
-            if (ComplexCommands.TryGetValue(command, out Action<string>? method))
+            if (CliCommandsDict.TryGetValue(command, out Action<string>? method))
             {
                 CheckSyntax(args, method);
                 return;
@@ -56,43 +72,32 @@ public class Kernel
         Console.WriteLine($"No such command: {args[0]}");
     }
 
+    //Remember to change Action<string> with Action<CommandSyntax>
     private static void CheckSyntax(string[] args, Action<string> commandExec)
     {
         args = args.Where(w => !string.IsNullOrEmpty(w)).ToArray();
 
-        switch (args.Length)
+        CommandSyntax syntax = new();
+
+        //check case of given options
+        //option written at full (-l, -p, etc...)
+        string arguments = string.Join(' ', args[1..args.Length]);
+
+        if (args[1][0].Equals('-'))
         {
-            case 1:
-                Console.WriteLine($"{commandExec.Method.Name.ToLower()} requires param");
-                break;
-            case 2:
-                int quoteCount = args[1].Count(c => c.Equals('"'));
-                if (quoteCount is 2 or 0)
-                    commandExec.Invoke(args[1].Replace("\"", ""));
-                else
-                    Console.WriteLine("Missing char: \"");
-
-                break;
-            case > 2:
-                int count = 2;
-                for (int i = 2; i < args.Length; i++)
-                {
-                    count++;
-                    args[1] += $" {args[i]}";
-                    if (args[i][args[i].Length - 1].Equals('"'))
-                        break;
-                }
-
-                bool isQuoted = args[1][0].Equals('"') && args[1][args[1].Length - 1].Equals('"');
-                if (isQuoted && args.Length == count)
-                    commandExec.Invoke(args[1].Replace("\"", ""));
-                else if (isQuoted)
-                    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[count..args.Length])}");
-                else
-                    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[2..args.Length])}");
-
-                break;
+            syntax.Options = new string[] { args[1] };
+            arguments = string.Join(' ', args[2..args.Length]);
         }
+
+        //suppose the remaining args are the given command arguments
+        if (arguments.Where(s => s.Equals('"')).Count() is 2 or 0)
+        {
+            string quotedString = string.Join(' ', arguments).Replace("\"", "");
+            syntax.Args = new string[] { quotedString };
+            commandExec.Invoke(quotedString);//pass syntax here
+            return;
+        }
+        Console.WriteLine("Missing char: \"");
     }
 
     #region Query file system
