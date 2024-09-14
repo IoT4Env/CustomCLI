@@ -1,4 +1,4 @@
-﻿namespace CustomCLI;
+﻿namespace CustomCLI.CliCommands.Resources;
 
 public class VirtualFile
 {

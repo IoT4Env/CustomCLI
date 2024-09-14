@@ -1,4 +1,5 @@
-﻿using CustomCLI.Commands.ICommands;
+﻿using CustomCLI.CliCommands.Resources;
+using CustomCLI.Commands.ICommands;
 
 namespace CustomCLI.Commands;
 
@@ -15,7 +16,7 @@ public class EchoCommand : ICommand
     /// print the specified string on the terminal
     /// </summary>
     /// <param name="arg">string to be dislayed on the terminal</param>
-    public static void Execute(CommandSyntax syntax) => Console.WriteLine(syntax.Arg[0]);
+    public static void Execute(CommandSyntax syntax) => Console.WriteLine(syntax.Arg);
 
     public static void EchoFileName(VirtualFile file)
     {

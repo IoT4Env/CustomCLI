@@ -1,4 +1,5 @@
-﻿using CustomCLI.Commands;
+﻿using CustomCLI.CliCommands.Resources;
+using CustomCLI.Commands;
 using System.IO.Enumeration;
 using System.Linq;
 
@@ -20,25 +21,25 @@ public class Kernel
     //todo:
     //Change folder name from "Commands" to "CliCommands"
     //For each command type, a new folder has to be added
-    private static Dictionary<CliCommands, Action<CommandSyntax>> CliCommandsDict = new()
+    private static Dictionary<CliCommandsEnum, Action<CommandSyntax>> CliCommandsDict = new()
            {
-               {CliCommands.Help, Help},
-               {CliCommands.Cls, Cls },
-               {CliCommands.Ls, Ls },
-               {CliCommands.Exit, Exit },
-               { CliCommands.Echo, Echo },//arg => Echo(arg)
-               { CliCommands.Cd, Cd },
-               { CliCommands.Fd, Fd },
-               { CliCommands.Touch, Touch },
-               { CliCommands.Rm, Rm },
-               { CliCommands.Mkdir, MkDir },
-               { CliCommands.Rmdir, Rmdir },
-               { CliCommands.Edit, Edit },
-               { CliCommands.Cat, Cat },
-               { CliCommands.X3i, X3i },
-               { CliCommands.Mv, Mv },
-               { CliCommands.Cp, Cp },
-               { CliCommands.Mirror, Mirror },
+               {CliCommandsEnum.Help, Help},
+               {CliCommandsEnum.Cls, Cls },
+               {CliCommandsEnum.Ls, Ls },
+               {CliCommandsEnum.Exit, Exit },
+               { CliCommandsEnum.Echo, Echo },//arg => Echo(arg)
+               { CliCommandsEnum.Cd, Cd },
+               { CliCommandsEnum.Fd, Fd },
+               { CliCommandsEnum.Touch, Touch },
+               { CliCommandsEnum.Rm, Rm },
+               { CliCommandsEnum.Mkdir, MkDir },
+               { CliCommandsEnum.Rmdir, Rmdir },
+               { CliCommandsEnum.Edit, Edit },
+               { CliCommandsEnum.Cat, Cat },
+               { CliCommandsEnum.X3i, X3i },
+               { CliCommandsEnum.Mv, Mv },
+               { CliCommandsEnum.Cp, Cp },
+               { CliCommandsEnum.Mirror, Mirror },
            };
 
     /// <summary>
@@ -53,7 +54,7 @@ public class Kernel
 
         //add as many if as of how many commands types there are
         //CliCommands type, Docker type, Python type, and so on...
-        if (Enum.TryParse<CliCommands>(args[0], ignoreCase: true, out var command))
+        if (Enum.TryParse<CliCommandsEnum>(args[0], ignoreCase: true, out var command))
         {
             if (CliCommandsDict.TryGetValue(command, out Action<CommandSyntax>? method))
             {

@@ -1,6 +1,7 @@
 ﻿using static CustomCLI.Kernel;
 using CustomCLI.Commands.ICommands;
 using System.Text;
+using CustomCLI.CliCommands.Resources;
 
 namespace CustomCLI.Commands;
 

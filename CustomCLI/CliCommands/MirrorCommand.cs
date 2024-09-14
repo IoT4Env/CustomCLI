@@ -1,4 +1,5 @@
-﻿using CustomCLI.Commands.ICommands;
+﻿using CustomCLI.CliCommands.Resources;
+using CustomCLI.Commands.ICommands;
 
 namespace CustomCLI.Commands;
 
@@ -75,7 +76,7 @@ public class MirrorCommand : ICommand
         string dirName = splittedPath[splittedPath.Length - 1];
 
         if (dirName is not null)
-            Kernel.Execute(new string[] { CliCommands.Mkdir.ToString(), dirName });
+            Kernel.Execute(new string[] { CliCommandsEnum.Mkdir.ToString(), dirName });
     }
 
     /// <summary>
@@ -87,6 +88,6 @@ public class MirrorCommand : ICommand
         string? fileName = Path.GetFileName(filePath);
 
         if (fileName is not null)
-            Kernel.Execute(new string[] { CliCommands.Touch.ToString(), fileName });
+            Kernel.Execute(new string[] { CliCommandsEnum.Touch.ToString(), fileName });
     }
 }
