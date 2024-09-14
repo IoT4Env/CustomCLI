@@ -10,13 +10,13 @@ public class LsCommand : ICommand
     /// </summary>
     /// <param name="arg">setted by default as an empty string</param>
     /// <returns>always return true</returns>
-    public static bool CanExecute(string arg = "") => true;
+    public static bool CanExecute(CommandSyntax syntax) => true;
 
     /// <summary>
     /// Prints all files and folders inside the current directory
     /// </summary>
     /// <param name="arg">setted by default as an empty string</param>
-    public static void Execute(string arg = "")
+    public static void Execute(CommandSyntax syntax)
     {
         VirtualFolder? dir = GetCurrentDir();
         BrowseDirectory(dir, EchoCommand.EchoFileName, EchoCommand.EchoFolderName);
