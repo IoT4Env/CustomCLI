@@ -6,6 +6,11 @@ namespace CustomCLI.Commands;
 public class MirrorCommand : ICommand
 {
     private static CommandSyntax syntax = new();
+    public static CommandSyntax? CheckSyntax(string[] syntax)
+    {
+        return null;
+    }
+
     /// <summary>
     /// Verifies if the given directory path exists in the REAL PC
     /// </summary>

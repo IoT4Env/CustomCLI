@@ -5,10 +5,11 @@ namespace CustomCLI.Commands;
 
 public class HelpCommand : ICommand
 {
-    public static void CheckSyntax(CommandSyntax syntax)
+    public static CommandSyntax? CheckSyntax(string[] syntax)
     {
-        //return true;
+        return null;
     }
+
     /// <summary>
     /// validates if the command can execute
     /// </summary>
@@ -23,7 +24,7 @@ public class HelpCommand : ICommand
     public static void Execute(CommandSyntax syntax)
     {
         Console.WriteLine("Command list:");
-        foreach (CliCommandsEnum command in Enum.GetValues(typeof(CliCommandsEnum)))
-            Console.Write($"{command.ToString().ToLower()}\t{command.ToDescriptionString()}\n");
+        foreach (CliCommandsClass command in CliCommandsClass.CliCommandsList)
+            Console.Write($"{command.Name.ToString().ToLower()}\t{command.Description}\n");
     }
 }

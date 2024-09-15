@@ -5,6 +5,11 @@ namespace CustomCLI.Commands;
 
 public class EchoCommand : ICommand
 {
+    public static CommandSyntax? CheckSyntax(string[] syntax)
+    {
+        return null;
+    }
+
     /// <summary>
     /// A Dictionary with all options associated with this command
     /// </summary>

@@ -7,6 +7,11 @@ namespace CustomCLI.Commands;
 
 public class EditCommand : ICommandComposite
 {
+    public static CommandSyntax? CheckSyntax(string[] syntax)
+    {
+        return null;
+    }
+
     public static bool CanExecute(CompositePath compositePath)
     {
         var offset = Tree.Count + compositePath.ArgsNum - 2;

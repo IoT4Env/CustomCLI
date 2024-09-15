@@ -6,6 +6,11 @@ namespace CustomCLI.Commands;
 
 public class X3iCommand : ICommandComposite
 {
+    public static CommandSyntax? CheckSyntax(string[] syntax)
+    {
+        return null;
+    }
+
     /// <summary>
     /// Tracks the specific file present somewhere in the file system and checks if the file exists
     /// </summary>

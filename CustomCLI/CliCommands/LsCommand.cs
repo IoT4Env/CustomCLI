@@ -6,6 +6,11 @@ namespace CustomCLI.Commands;
 
 public class LsCommand : ICommand
 {
+    public static CommandSyntax? CheckSyntax(string[] syntax)
+    {
+        return null;
+    }
+
     /// <summary>
     /// Validates if the command can execute
     /// </summary>
