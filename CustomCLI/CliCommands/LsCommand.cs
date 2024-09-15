@@ -6,8 +6,17 @@ namespace CustomCLI.Commands;
 
 public class LsCommand : ICommand
 {
-    public static CommandSyntax? CheckSyntax(string[] syntax)
+    public static CommandSyntax? CheckSyntax(string[] args)
     {
+        //If no arguments where given
+        if (args.Length == 1)
+        {
+            return new CommandSyntax()
+            {
+                Arg = args[0]
+            };
+        }
+        Console.WriteLine("Arguments excedeed");
         return null;
     }
 

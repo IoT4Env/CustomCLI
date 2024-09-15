@@ -12,5 +12,5 @@ public interface ICommandComposite
     #endregion
     static abstract bool CanExecute(CompositePath compositePath);
     static abstract void Execute(CompositePath compositePath);
-    static abstract CommandSyntax CheckSyntax(string[] syntax);
+    static abstract CommandSyntax? CheckSyntax(string[] args);
 }

@@ -1,6 +1,7 @@
 ﻿using CustomCLI.CliCommands;
 using CustomCLI.CliCommands.Resources;
 using CustomCLI.Commands;
+using System.Diagnostics;
 
 namespace CustomCLI;
 
@@ -66,51 +67,6 @@ public class Kernel
                 return;
             }
         }
-    }
-
-    private static void CheckSyntax(string[] args, Action<CommandSyntax> commandExec)
-    {
-        //re re re simplify this method...
-        //in the future, the check syntax can be applied inside each commands instead of a general way to write the command
-        //this should add more flexibility on the amount of arguments and options for the specific command
-        args = args.Where(w => !string.IsNullOrEmpty(w)).ToArray();
-
-        CommandSyntax syntax = new()
-        {
-            Arg = string.Empty,
-            Option = string.Empty,
-        };
-
-        if (args.Length == 1)
-        {
-            commandExec.Invoke(syntax);
-            return;
-        }
-
-        if (args.Length == 2 && args[1][0].Equals('-'))
-        {
-            syntax.Option = args[1];
-            commandExec.Invoke(syntax);
-            return;
-        }
-
-        string arguments = string.Join(' ', args[1..args.Length]);
-
-        if (args[1][0].Equals('-'))
-        {
-            syntax.Option = args[1];
-            arguments = string.Join(' ', args[2..args.Length]);
-        }
-
-        //suppose the remaining args are the given command arguments
-        if (arguments.Where(s => s.Equals('"')).Count() is 2 or 0)
-        {
-            string quotedString = string.Join(' ', arguments).Replace("\"", "");
-            syntax.Arg = quotedString;
-            commandExec.Invoke(syntax);//pass syntax here
-            return;
-        }
-        Console.WriteLine("Missing char: \"");
     }
 
     #region Query file system
