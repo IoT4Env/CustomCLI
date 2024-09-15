@@ -1,11 +1,30 @@
 ﻿using static CustomCLI.Kernel;
 using CustomCLI.Commands.ICommands;
 using System.Text;
+using CustomCLI.CliCommands.Resources;
 
 namespace CustomCLI.Commands;
 
 public class EditCommand : ICommandComposite
 {
+    public static CommandSyntax? CheckSyntax(string[] args)
+    {
+        //If no arguments where given
+        if (args.Length == 1)
+        {
+            Console.WriteLine("Argument required");
+        }
+        else if (args.Length == 2)
+        {
+            return new CommandSyntax()
+            {
+                Arg = args[1]
+            };
+        }
+        Console.WriteLine("Arguments excedeed");
+        return null;
+    }
+
     public static bool CanExecute(CompositePath compositePath)
     {
         var offset = Tree.Count + compositePath.ArgsNum - 2;

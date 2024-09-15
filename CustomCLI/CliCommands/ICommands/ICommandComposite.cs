@@ -1,4 +1,6 @@
-﻿namespace CustomCLI.Commands.ICommands;
+﻿using CustomCLI.CliCommands.Resources;
+
+namespace CustomCLI.Commands.ICommands;
 
 public interface ICommandComposite
 {
@@ -10,4 +12,5 @@ public interface ICommandComposite
     #endregion
     static abstract bool CanExecute(CompositePath compositePath);
     static abstract void Execute(CompositePath compositePath);
+    static abstract CommandSyntax? CheckSyntax(string[] args);
 }

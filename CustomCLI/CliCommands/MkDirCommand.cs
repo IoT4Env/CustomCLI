@@ -1,10 +1,29 @@
 ﻿using static CustomCLI.Kernel;
 using CustomCLI.Commands.ICommands;
+using CustomCLI.CliCommands.Resources;
 
 namespace CustomCLI.Commands;
 
 public class MkDirCommand : ICommandComposite
 {
+    public static CommandSyntax? CheckSyntax(string[] args)
+    {
+        //If no arguments where given
+        if (args.Length == 1)
+        {
+            Console.WriteLine("Argument required");
+        }
+        else if (args.Length == 2)
+        {
+            return new CommandSyntax()
+            {
+                Arg = args[1]
+            };
+        }
+        Console.WriteLine("Arguments excedeed");
+        return null;
+    }
+
     /// <summary>
     /// Tracks the specific directory present somewhere in the file system and checks if it already exists
     /// </summary>
