@@ -5,6 +5,10 @@ namespace CustomCLI.Commands;
 
 public class HelpCommand : ICommand
 {
+    public static void CheckSyntax(CommandSyntax syntax)
+    {
+        //return true;
+    }
     /// <summary>
     /// validates if the command can execute
     /// </summary>
