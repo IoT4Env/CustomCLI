@@ -6,12 +6,11 @@ public class ClsCommand : ICommand
 {
     public static CommandSyntax? CheckSyntax(string[] args)
     {
-        //If no arguments where given
-        if(args.Length == 1)
+        if(args.Length == 0)
         {
             return new CommandSyntax()
             {
-                Arg = args[0]
+                Arg = string.Empty
             };
         }
         Console.WriteLine("Arguments excedeed");

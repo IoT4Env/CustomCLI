@@ -8,16 +8,15 @@ public class RmDirCommand : ICommandComposite
 {
     public static CommandSyntax? CheckSyntax(string[] args)
     {
-        //If no arguments where given
-        if (args.Length == 1)
+        if (args.Length == 0)
         {
             Console.WriteLine("Argument required");
         }
-        else if (args.Length == 2)
+        else if (args.Length == 1)
         {
             return new CommandSyntax()
             {
-                Arg = args[1]
+                Arg = args[0]
             };
         }
         Console.WriteLine("Arguments excedeed");
@@ -67,11 +66,8 @@ public class RmDirCommand : ICommandComposite
     public static void Execute(CompositePath compositePath)
     {
         var offset = Tree.Count + compositePath.ArgsNum - 2;
-        var a = Dirs[offset].Folders;
         //Remove from Dirs
         Dirs.Remove(Dirs.FirstOrDefault(f => f.Name.Equals(compositePath.LastArgName)));
-
-        var b = Dirs[offset].Folders;
 
         //Actual directory deletion
         Dirs[offset].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
