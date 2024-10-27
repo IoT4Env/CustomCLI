@@ -1,7 +1,9 @@
 ﻿using CustomCLI.CliCommands.Resources;
 using CustomCLI.Commands.ICommands;
+using System.Text.RegularExpressions;
 
 namespace CustomCLI.Commands;
+
 
 public class EchoCommand : ICommand
 {
@@ -49,7 +51,9 @@ public class EchoCommand : ICommand
     /// </summary>
     private static readonly Dictionary<string, Action<string>> _options = new()
     { 
+        { "-n", NOpt },
         { "-e", EOpt },
+        { "-E", EUpperOpt}
     };
     /// <summary>
     /// validates if the command can execute
@@ -73,7 +77,9 @@ public class EchoCommand : ICommand
     }
 
     private static void Echo(string arg) => Console.WriteLine(arg);
-    private static void EOpt(string opt) => Console.WriteLine(opt.Replace("e", ""));
+    private static void NOpt(string opt) => Console.Write(opt);
+    private static void EOpt(string opt) => Console.WriteLine(Regex.Unescape(opt));
+    private static void EUpperOpt(string opt) => Console.WriteLine(opt);
 
     public static void EchoFileName(VirtualFile file)
     {

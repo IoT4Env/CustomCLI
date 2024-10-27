@@ -16,7 +16,7 @@ public class Kernel
     private static List<string> ExternalCommands { get; set; } = new() { };
 
     //For each command type, a new folder has to be added
-    private static Dictionary<CliCommandsEnum, Action<CommandSyntax>> CliCommandsDict = new()
+    private static readonly Dictionary<CliCommandsEnum, Action<CommandSyntax>> CliCommandsDict = new()
     {
         { CliCommandsEnum.Help, Help },
         { CliCommandsEnum.Cls, Cls },
