@@ -21,21 +21,16 @@ public class EchoCommand : ICommand
         }
 
         var purifiedArgs = PurifyArgs(args);
-        if (_options.ContainsKey(purifiedArgs[0]))
-        {
-            return new CommandSyntax
-            {
-                Arg = string.Join(" ", purifiedArgs[1..purifiedArgs.Length]),
-                Option = purifiedArgs[0]
-            };
-        }
-        else
+        var syntax = EchoCommandOptions.CheckSyntax(purifiedArgs);
+
+        if (syntax is null)
         {
             return new CommandSyntax()
             {
                 Arg = string.Join(" ", purifiedArgs[0..purifiedArgs.Length])
             };
         }
+        return syntax;
     }
 
     /// <summary>
@@ -43,18 +38,9 @@ public class EchoCommand : ICommand
     /// </summary>
     /// <param name="args">Argument to remove empty strings from</param>
     /// <returns>A new string[] without empty strings</returns>
-    private static string[] PurifyArgs(string[] args) => 
+    private static string[] PurifyArgs(string[] args) =>
         args.Where(arg => !string.IsNullOrEmpty(arg)).ToArray();
 
-    /// <summary>
-    /// A Dictionary with all options associated with this command
-    /// </summary>
-    private static readonly Dictionary<string, Action<string>> _options = new()
-    { 
-        { "-n", NOpt },
-        { "-e", EOpt },
-        { "-E", EUpperOpt}
-    };
     /// <summary>
     /// validates if the command can execute
     /// </summary>
@@ -68,24 +54,23 @@ public class EchoCommand : ICommand
     /// <param name="arg">string to be dislayed on the terminal</param>
     public static void Execute(CommandSyntax syntax)
     {
-        if(syntax.Option is null)
+        if (syntax.Option is null)
         {
             Echo(syntax.Arg);
             return;
         }
-        _options[syntax.Option].Invoke(syntax.Arg);
+
+        if (EchoCommandOptions.CanExecute(syntax))
+            EchoCommandOptions.Execute(syntax);
     }
 
     private static void Echo(string arg) => Console.WriteLine(arg);
-    private static void NOpt(string opt) => Console.Write(opt);
-    private static void EOpt(string opt) => Console.WriteLine(Regex.Unescape(opt));
-    private static void EUpperOpt(string opt) => Console.WriteLine(opt);
 
     public static void EchoFileName(VirtualFile file)
     {
         Console.ForegroundColor = file.Color;
-        Console.Write(file.Name.Contains(' ') 
-            ? $"\"{file.Name}\" " 
+        Console.Write(file.Name.Contains(' ')
+            ? $"\"{file.Name}\" "
             : $"{file.Name} ");
         Console.ForegroundColor = ConsoleColor.Gray;
     }
@@ -97,5 +82,69 @@ public class EchoCommand : ICommand
             ? $"\"{folder.Name}\" "
             : $"{folder.Name} ");
         Console.ForegroundColor = ConsoleColor.Gray;
+    }
+}
+
+class EchoCommandOptions : ICommand
+{
+    /// <summary>
+    /// A string whose chars are associated with options of the echo command
+    /// </summary>
+    private static readonly string Options = "neE";
+
+    public static bool CanExecute(CommandSyntax syntax)
+    {
+        if (syntax.Option is null)
+        {
+            Console.WriteLine($"Argument cannot be null");
+            return false;
+        }
+
+        if (syntax.Option.Length > Options.Length)
+        {
+            Console.WriteLine("Too many arguments");
+            return false;
+        }
+
+        foreach (char option in syntax.Option)
+        {
+            if (!Options.Contains(option))
+            {
+                Console.WriteLine($"Invalid command option: {option}");
+                return false;
+            }
+        }
+
+        if (syntax.Option.Contains('e') && syntax.Option.Contains('E'))
+        {
+            Console.WriteLine($"Arguments 'e' and 'E' cannot be specified together");
+            return false;
+        }
+
+        return true;
+    }
+
+    public static CommandSyntax? CheckSyntax(string[] args)
+        => args[0].Contains('-') && args.Length > 1
+            ? new CommandSyntax
+            {
+                Arg = string.Join(" ", args[1..args.Length]),
+                Option = args[0].Replace("-", "")
+            }
+            : null;
+
+    public static void Execute(CommandSyntax syntax)
+    {
+        var output = syntax.Arg;
+        if (syntax.Option.Contains('e'))
+        {
+            output = Regex.Unescape(syntax.Arg);
+        }
+        if (syntax.Option.Contains('n'))
+        {
+            Console.Write(output);
+            return;
+        }
+        Console.WriteLine(output);
     }
 }
