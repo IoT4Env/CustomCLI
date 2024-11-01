@@ -1,4 +1,5 @@
 ﻿using CustomCLI.Commands.ICommands;
+using System.Text.RegularExpressions;
 
 namespace CustomCLI.CliCommands;
 
@@ -13,13 +14,13 @@ public class EchoCommandOption : ICommand
     {
         if (syntax.Option is null)
         {
-            Console.WriteLine($"Argument cannot be null");
+            Console.WriteLine($"Options cannot be null");
             return false;
         }
 
         if (syntax.Option.Length > Options.Length)
         {
-            Console.WriteLine("Too many arguments");
+            Console.WriteLine("Too many options");
             return false;
         }
 
@@ -34,7 +35,7 @@ public class EchoCommandOption : ICommand
 
         if (syntax.Option.Contains('e') && syntax.Option.Contains('E'))
         {
-            Console.WriteLine($"Arguments 'e' and 'E' cannot be specified together");
+            Console.WriteLine($"Options 'e' and 'E' cannot be specified together");
             return false;
         }
 

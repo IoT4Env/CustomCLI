@@ -42,29 +42,17 @@ public class EchoCommand : ICommand
         args.Where(arg => !string.IsNullOrEmpty(arg)).ToArray();
 
     /// <summary>
-    /// validates if the command can execute
+    /// Validates if the optionless command can execute
     /// </summary>
-    /// <param name="arg">string to be displayed on the terminal</param>
-    /// <returns>always return true</returns>
-    public static bool CanExecute(CommandSyntax syntax) => true;
+    /// <param name="syntax">Syntax object used for the command validation</param>
+    /// <returns>Returns true if the command has no options</returns>
+    public static bool CanExecute(CommandSyntax syntax) => syntax.Option is null;
 
     /// <summary>
-    /// Print the specified string on the terminal.
+    /// Prints the syntax argument in the terminal.
     /// </summary>
-    /// <param name="arg">string to be dislayed on the terminal</param>
-    public static void Execute(CommandSyntax syntax)
-    {
-        if (syntax.Option is null)
-        {
-            Echo(syntax.Arg);
-            return;
-        }
-
-        if (EchoCommandOption.CanExecute(syntax))
-            EchoCommandOption.Execute(syntax);
-    }
-
-    private static void Echo(string arg) => Console.WriteLine(arg);
+    /// <param name="syntax">Syntax object containing argument and/or options of the echo command</param>
+    public static void Execute(CommandSyntax syntax) => Console.WriteLine(syntax.Arg);
 
     public static void EchoFileName(VirtualFile file)
     {
