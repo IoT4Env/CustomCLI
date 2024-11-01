@@ -146,14 +146,14 @@ public class Kernel
         return dir.Folders.Where(f => f.Name.Equals(name)).Count() != 0;
     }
 
-    public static void BrowseDirectory(VirtualFolder targetFolder, Action<VirtualFile> fileAction, Action<VirtualFolder> folderAction)
+    public static void BrowseDirectory(VirtualFolder targetFolder, Action<IFSO> fileSystemObjectAction)
     {
         var mutableFileCount = targetFolder.Files.Count;
         for (int i = 0; i < mutableFileCount; i++)
         {
             if (mutableFileCount != targetFolder.Files.Count)
                 mutableFileCount = targetFolder.Files.Count;
-            fileAction.Invoke(targetFolder.Files[i]);
+            fileSystemObjectAction.Invoke(targetFolder.Files[i]);
         }
 
         var mutableFolderCount = targetFolder.Folders.Count;
@@ -161,14 +161,14 @@ public class Kernel
         {
             if (mutableFolderCount != targetFolder.Folders.Count)
                 mutableFolderCount = targetFolder.Folders.Count;
-            folderAction.Invoke(targetFolder.Folders[i]);
+            fileSystemObjectAction.Invoke(targetFolder.Folders[i]);
 
             //already checkd if the list has beed changed
             if (i <= mutableFolderCount)
                 continue;
 
             if (!IsFolderEmpty(targetFolder.Folders[i]))
-                BrowseDirectory(targetFolder.Folders[i], fileAction, folderAction);
+                BrowseDirectory(targetFolder.Folders[i], fileSystemObjectAction);
         }
         Console.WriteLine();
     }

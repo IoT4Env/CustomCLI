@@ -33,6 +33,6 @@ public class LsCommand : ICommand
     public static void Execute(CommandSyntax syntax)
     {
         VirtualFolder? dir = GetCurrentDir();
-        BrowseDirectory(dir, EchoCommand.EchoFileName, EchoCommand.EchoFolderName);
+        BrowseDirectory(dir, EchoCommand.EchoFileSystemObject);
     }
 }

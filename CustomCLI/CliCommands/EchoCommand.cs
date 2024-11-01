@@ -54,21 +54,17 @@ public class EchoCommand : ICommand
     /// <param name="syntax">Syntax object containing argument and/or options of the echo command</param>
     public static void Execute(CommandSyntax syntax) => Console.WriteLine(syntax.Arg);
 
-    public static void EchoFileName(VirtualFile file)
+    /// <summary>
+    /// Prints the name of the given file system object in the terminal.
+    /// </summary>
+    /// <param name="fso">A generic file system object</param>
+    public static void EchoFileSystemObject<FSO>(FSO fso) 
+        where FSO : IFSO
     {
-        Console.ForegroundColor = file.Color;
-        Console.Write(file.Name.Contains(' ')
-            ? $"\"{file.Name}\" "
-            : $"{file.Name} ");
-        Console.ForegroundColor = ConsoleColor.Gray;
-    }
-
-    public static void EchoFolderName(VirtualFolder folder)
-    {
-        Console.ForegroundColor = folder.Color;
-        Console.Write(folder.Name.Contains(' ')
-            ? $"\"{folder.Name}\" "
-            : $"{folder.Name} ");
+        Console.ForegroundColor = fso.Color;
+        Console.Write(fso.Name.Contains(' ')
+            ? $"\"{fso.Name}\" "
+            : $"{fso.Name} ");
         Console.ForegroundColor = ConsoleColor.Gray;
     }
 }
