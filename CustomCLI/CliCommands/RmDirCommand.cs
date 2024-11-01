@@ -71,8 +71,7 @@ public class RmDirCommand : ICommandComposite
         Dirs[offset].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
     }
 
-    private static void RmNestedFileSystemObject<FSO>(FSO fso)
-        where FSO : IFSO
+    private static void RmNestedFileSystemObject(IFSO fso)
     {
         CompositePath compositePath = UnpackPath(fso.Path);
         RmCommand.Execute(compositePath);

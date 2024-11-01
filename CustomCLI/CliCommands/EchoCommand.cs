@@ -58,8 +58,7 @@ public class EchoCommand : ICommand
     /// Prints the name of the given file system object in the terminal.
     /// </summary>
     /// <param name="fso">A generic file system object</param>
-    public static void EchoFileSystemObject<FSO>(FSO fso) 
-        where FSO : IFSO
+    public static void EchoFileSystemObject(IFSO fso) 
     {
         Console.ForegroundColor = fso.Color;
         Console.Write(fso.Name.Contains(' ')
