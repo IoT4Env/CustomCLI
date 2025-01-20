@@ -1,7 +1,6 @@
 ﻿using CustomCLI.CliCommands;
 using CustomCLI.CliCommands.Resources;
 using CustomCLI.Commands;
-using System.Diagnostics;
 
 namespace CustomCLI;
 
@@ -12,8 +11,11 @@ public class Kernel
     public static int Dept { get; set; } = 0;
     public static List<string> Tree { get; set; } = new() { string.Empty };
 
-    //Heap memory
-    public static List<object> Heap { get; set; } = new();
+    /// <summary>
+    /// The heap memory.
+    /// Data allocated in the Heap is refered by a string literal the same way a variable stores its content
+    /// </summary>
+    public static Dictionary<string, object> Heap { get; set; } = new();
 
     //when "installing" new commands, the name should be added here
     private static List<string> ExternalCommands { get; set; } = new() { };

@@ -1,6 +1,7 @@
 ﻿using CustomCLI.CliCommands;
 using CustomCLI.CliCommands.Resources;
 using CustomCLI.Commands.ICommands;
+using static CustomCLI.Kernel;
 
 namespace CustomCLI.Commands;
 
@@ -21,16 +22,17 @@ public class EchoCommand : ICommand
         }
 
         var purifiedArgs = PurifyArgs(args);
-        var syntax = EchoCommandOption.CheckSyntax(purifiedArgs);
+        var argumentSyntax = EchoCommandOption.CheckSyntax(purifiedArgs);
+        string[] newArgs = ResolveVariables(purifiedArgs);
 
-        if (syntax is null)
+        if (argumentSyntax is null)
         {
             return new CommandSyntax()
             {
-                Arg = string.Join(" ", purifiedArgs[0..purifiedArgs.Length])
+                Arg = string.Join(" ", newArgs[0..newArgs.Length])
             };
         }
-        return syntax;
+        return argumentSyntax;
     }
 
     /// <summary>
@@ -53,6 +55,21 @@ public class EchoCommand : ICommand
     /// </summary>
     /// <param name="syntax">Syntax object containing argument and/or options of the echo command</param>
     public static void Execute(CommandSyntax syntax) => Console.WriteLine(syntax.Arg);
+
+    public static string[] ResolveVariables(string[] args)
+    {
+        List<string> newArgs = new List<string>();
+        foreach (var arg in args)
+        {
+            if (Heap.ContainsKey(arg))
+            {
+                newArgs.Add(Heap[arg].ToString());
+                continue;
+            }
+            newArgs.Add(arg);
+        }
+        return newArgs.ToArray();
+    }
 
     /// <summary>
     /// Prints the name of the given file system object in the terminal.
