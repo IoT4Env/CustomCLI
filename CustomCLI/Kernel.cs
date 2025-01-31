@@ -1,6 +1,7 @@
 ﻿using CustomCLI.CliCommands;
 using CustomCLI.CliCommands.Resources;
 using CustomCLI.Commands;
+using CustomCLI.FileSystem;
 
 namespace CustomCLI;
 
@@ -10,12 +11,6 @@ public class Kernel
     public static bool IsExit { get; set; } = false;
     public static int Dept { get; set; } = 0;
     public static List<string> Tree { get; set; } = new() { string.Empty };
-
-    /// <summary>
-    /// The heap memory.
-    /// Data allocated in the Heap is refered by a string literal the same way a variable stores its content
-    /// </summary>
-    public static Dictionary<string, object> Heap { get; set; } = new();
 
     //when "installing" new commands, the name should be added here
     private static List<string> ExternalCommands { get; set; } = new() { };

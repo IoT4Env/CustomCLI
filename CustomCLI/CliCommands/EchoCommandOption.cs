@@ -1,6 +1,6 @@
 ﻿using CustomCLI.Commands.ICommands;
 using System.Text.RegularExpressions;
-using static CustomCLI.Kernel;
+using static CustomCLI.Memory;
 
 namespace CustomCLI.CliCommands;
 
