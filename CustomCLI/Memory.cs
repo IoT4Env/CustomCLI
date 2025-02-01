@@ -8,7 +8,7 @@ public static class Memory
     /// The heap memory.
     /// Data allocated in the Heap is refered by a string literal the same way a variable stores its content
     /// </summary>
-    public static Dictionary<string, object> Heap { get; set; } = new();
+    public static Dictionary<string, string> Heap { get; set; } = new();
     public static Stack<string> StackSegment { get; set; } = new();
 
     /// <summary>
@@ -36,9 +36,9 @@ public static class Memory
     /// </summary>
     /// <param name="args">Command arguments</param>
     /// <returns>A list of object with variable names substituted with their value</returns>
-    public static object[] ResolveVariables(string[] args)
+    public static string[] ResolveVariables(string[] args)
     {
-        List<object> resolvedArgs = new();
+        List<string> resolvedArgs = new();
         foreach (string arg in args)
         {
             if(Heap.TryGetValue(arg, out var value))
