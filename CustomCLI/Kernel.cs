@@ -172,7 +172,6 @@ public class Kernel
             if (!IsFolderEmpty(targetFolder.Folders[i]))
                 BrowseDirectory(targetFolder.Folders[i], fileSystemObjectAction);
         }
-        Console.WriteLine();
     }
     #endregion
 
@@ -240,6 +239,8 @@ public class Kernel
     {
         if (MirrorCommand.CanExecute(syntax))
             MirrorCommand.Execute(syntax);
+        else if (MirrorCommandOption.CanExecute(syntax))
+            MirrorCommandOption.Execute(syntax);
     }
 
     private static void Read(CommandSyntax syntax)

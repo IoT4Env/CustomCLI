@@ -1,5 +1,7 @@
-﻿using CustomCLI.CliCommands.Resources;
+﻿using CustomCLI.CliCommands;
+using CustomCLI.CliCommands.Resources;
 using CustomCLI.Commands.ICommands;
+using static CustomCLI.Memory;
 
 namespace CustomCLI.Commands;
 
@@ -19,9 +21,29 @@ public class MirrorCommand : ICommand
                 Arg = args[0]
             };
         }
-        Console.WriteLine("Arguments excedeed");
-        return null;
+
+        var purifiedArgs = PurifyArgs(args);
+        if (!CanResolveVariables(purifiedArgs, out string undefined))
+        {
+            Console.WriteLine($"{undefined} is not defined");
+            return null;
+        }
+        string[] newArgs = ResolveVariables(purifiedArgs);
+
+        var argumentSyntax = MirrorCommandOption.CheckSyntax(purifiedArgs);
+        if (argumentSyntax is null)
+        {
+            return new CommandSyntax()
+            {
+                Arg = string.Join(" ", newArgs[0..newArgs.Length])
+            };
+        }
+
+        return argumentSyntax;
     }
+
+    private static string[] PurifyArgs(string[] args) =>
+        args.Where(arg => !string.IsNullOrEmpty(arg)).ToArray();
 
     /// <summary>
     /// Verifies if the given directory path exists in the REAL PC
@@ -30,10 +52,14 @@ public class MirrorCommand : ICommand
     /// <returns>true if directory exists</returns>
     public static bool CanExecute(CommandSyntax syntax)
     {
-        string? directory = Path.GetDirectoryName(syntax.Arg);
-        if (!Path.Exists(syntax.Arg))
+        if(syntax.Option is not null)
         {
-            Console.WriteLine($"No such directory: {directory}");
+            return false;
+        }
+
+        if (!Directory.Exists(syntax.Arg))
+        {
+            Console.WriteLine($"No such directory: {syntax.Arg}");
             return false;
         }
         return true;
@@ -87,7 +113,7 @@ public class MirrorCommand : ICommand
     /// Get REAL directory names and creates the folder inside this simulated environment
     /// </summary>
     /// <param name="dirPath">Full directory path for folder creation</param>
-    private static void GetRealDirs(string dirPath)
+    public static void GetRealDirs(string dirPath)
     {
         string[] splittedPath = dirPath.Split('\\');
         string dirName = splittedPath[splittedPath.Length - 1];
@@ -100,7 +126,7 @@ public class MirrorCommand : ICommand
     /// Get REAL file names and creates the file inside this simulated environment
     /// </summary>
     /// <param name="filePath">Full file path for file creation</param>
-    private static void GetRealFiles(string filePath)
+    public static void GetRealFiles(string filePath)
     {
         string? fileName = Path.GetFileName(filePath);
 

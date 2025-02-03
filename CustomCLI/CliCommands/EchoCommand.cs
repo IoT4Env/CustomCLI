@@ -22,7 +22,6 @@ public class EchoCommand : ICommand
         }
 
         var purifiedArgs = PurifyArgs(args);
-        var argumentSyntax = EchoCommandOption.CheckSyntax(purifiedArgs);
         if (!CanResolveVariables(purifiedArgs, out string undefined))
         {
             Console.WriteLine($"{undefined} is not defined");
@@ -30,7 +29,7 @@ public class EchoCommand : ICommand
         }
 
         string[] newArgs = ResolveVariables(purifiedArgs);
-
+        var argumentSyntax = EchoCommandOption.CheckSyntax(purifiedArgs);
         if (argumentSyntax is null)
         {
             return new CommandSyntax()
@@ -69,7 +68,7 @@ public class EchoCommand : ICommand
     public static void EchoFileSystemObject(IFSO fso) 
     {
         Console.ForegroundColor = fso.Color;
-        Console.Write(fso.Name.Contains(' ')
+        Console.WriteLine(fso.Name.Contains(' ')
             ? $"\"{fso.Name}\" "
             : $"{fso.Name} ");
         Console.ForegroundColor = ConsoleColor.Gray;

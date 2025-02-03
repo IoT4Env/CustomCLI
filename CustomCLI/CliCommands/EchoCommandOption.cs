@@ -83,19 +83,4 @@ public class EchoCommandOption : ICommand
         }
         Console.WriteLine(output);
     }
-
-    public static string[] ResolveVariables(string[] args)
-    {
-        List<string> newArgs = new();
-        foreach (var arg in args)
-        {
-            if (Heap.ContainsKey(arg))
-            {
-                newArgs.Add(Heap[arg].ToString());
-                continue;
-            }
-            newArgs.Add(arg);
-        }
-        return newArgs.ToArray();
-    }
 }
