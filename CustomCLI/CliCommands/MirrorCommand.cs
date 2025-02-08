@@ -1,6 +1,8 @@
 ﻿using CustomCLI.CliCommands;
 using CustomCLI.CliCommands.Resources;
 using CustomCLI.Commands.ICommands;
+using CustomCLI.FileSystem;
+using static CustomCLI.Kernel;
 using static CustomCLI.Memory;
 
 namespace CustomCLI.Commands;
@@ -90,12 +92,14 @@ public class MirrorCommand : ICommand
     {
         foreach (string directory in directories)
         {
-            GetRealDirs(directory);
+            string[] splittedPath = directory.Split('\\');
+            string dirName = splittedPath[splittedPath.Length - 1];
+            GetRealDirs(dirName);
 
             if (!Directory.EnumerateFileSystemEntries(directory).Any())
                 continue;
 
-            syntax.Arg = directory;
+            syntax.Arg = dirName;
             CdCommand.Execute(syntax);
 
             string[] files = Directory.GetFiles(directory);
@@ -113,11 +117,8 @@ public class MirrorCommand : ICommand
     /// Get REAL directory names and creates the folder inside this simulated environment
     /// </summary>
     /// <param name="dirPath">Full directory path for folder creation</param>
-    public static void GetRealDirs(string dirPath)
+    public static void GetRealDirs(string dirName)
     {
-        string[] splittedPath = dirPath.Split('\\');
-        string dirName = splittedPath[splittedPath.Length - 1];
-
         if (dirName is not null)
             Kernel.Execute(new string[] { CliCommandsEnum.Mkdir.ToString(), dirName });
     }
@@ -128,9 +129,16 @@ public class MirrorCommand : ICommand
     /// <param name="filePath">Full file path for file creation</param>
     public static void GetRealFiles(string filePath)
     {
-        string? fileName = Path.GetFileName(filePath);
+        if (!Path.Exists(filePath))
+            return;
 
-        if (fileName is not null)
-            Kernel.Execute(new string[] { CliCommandsEnum.Touch.ToString(), fileName });
+        string fileName = Path.GetFileName(filePath);
+
+        string fileContent = File.ReadAllText(filePath);
+
+        Kernel.Execute(new string[] { CliCommandsEnum.Touch.ToString(), fileName });
+
+        VirtualFolder dir = GetCurrentDir();
+        dir.Files.FirstOrDefault(f => f.Name.Equals(fileName)).Content = fileContent;
     }
 }
