@@ -24,7 +24,7 @@ public class MirrorCommand : ICommand
             };
         }
 
-        var purifiedArgs = PurifyArgs(args);
+        var purifiedArgs = CommandSyntax.TrimArgs(args);
         if (!CanResolveVariables(purifiedArgs, out string undefined))
         {
             Console.WriteLine($"{undefined} is not defined");
@@ -43,9 +43,6 @@ public class MirrorCommand : ICommand
 
         return argumentSyntax;
     }
-
-    private static string[] PurifyArgs(string[] args) =>
-        args.Where(arg => !string.IsNullOrEmpty(arg)).ToArray();
 
     /// <summary>
     /// Verifies if the given directory path exists in the REAL PC
@@ -78,7 +75,7 @@ public class MirrorCommand : ICommand
         string[] rootFiles = Directory.GetFiles(syntax.Arg);
         
         foreach (string file in rootFiles)
-            GetRealFiles(file);
+            MirrorRealFile(file);
 
         //works even with space-defined paths!
         BrowseDirectories(rootFolders);
@@ -94,7 +91,7 @@ public class MirrorCommand : ICommand
         {
             string[] splittedPath = directory.Split('\\');
             string dirName = splittedPath[splittedPath.Length - 1];
-            GetRealDirs(dirName);
+            MirrorRealDir(dirName);
 
             if (!Directory.EnumerateFileSystemEntries(directory).Any())
                 continue;
@@ -104,7 +101,7 @@ public class MirrorCommand : ICommand
 
             string[] files = Directory.GetFiles(directory);
             foreach (string file in files)
-                GetRealFiles(file);
+                MirrorRealFile(file);
 
             BrowseDirectories(Directory.GetDirectories(directory));
 
@@ -114,20 +111,20 @@ public class MirrorCommand : ICommand
     }
 
     /// <summary>
-    /// Get REAL directory names and creates the folder inside this simulated environment
+    /// Creates the REAL provided folder inside this simulated environment
     /// </summary>
     /// <param name="dirPath">Full directory path for folder creation</param>
-    public static void GetRealDirs(string dirName)
+    public static void MirrorRealDir(string dirName)
     {
         if (dirName is not null)
             Kernel.Execute(new string[] { CliCommandsEnum.Mkdir.ToString(), dirName });
     }
 
     /// <summary>
-    /// Get REAL file names and creates the file inside this simulated environment
+    /// Creates the REAL provided file inside this simulated environment
     /// </summary>
     /// <param name="filePath">Full file path for file creation</param>
-    public static void GetRealFiles(string filePath)
+    public static void MirrorRealFile(string filePath)
     {
         if (!Path.Exists(filePath))
             return;

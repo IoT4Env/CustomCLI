@@ -21,7 +21,7 @@ public class EchoCommand : ICommand
             return null;
         }
 
-        var purifiedArgs = PurifyArgs(args);
+        var purifiedArgs = CommandSyntax.TrimArgs(args);
         if (!CanResolveVariables(purifiedArgs, out string undefined))
         {
             Console.WriteLine($"{undefined} is not defined");
@@ -39,14 +39,6 @@ public class EchoCommand : ICommand
         }
         return argumentSyntax;
     }
-
-    /// <summary>
-    /// Removes all empty strings inside the given string[]
-    /// </summary>
-    /// <param name="args">Argument to remove empty strings from</param>
-    /// <returns>A new string[] without empty strings</returns>
-    private static string[] PurifyArgs(string[] args) =>
-        args.Where(arg => !string.IsNullOrEmpty(arg)).ToArray();
 
     /// <summary>
     /// Validates if the optionless command can execute

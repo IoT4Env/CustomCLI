@@ -7,7 +7,23 @@ namespace CustomCLI.CliCommands;
 public class EchoCommandOption : ICommand
 {
     /// <summary>
-    /// A string whose chars are associated with options of the echo command
+    /// A string whose chars are associated with options of the echo command.
+    /// Current supported options are:
+    /// <br/>
+    /// . <strong>n</strong>
+    /// Does not print the default new line character '\n'
+    /// <br/>
+    /// . <strong>e</strong>
+    /// Identify special characters like \n, \t and interprets them as their programming definition.
+    /// EG: 
+    /// <code>echo -e Hello\nWorld\t!!!
+    /// Hello
+    /// World   !!!
+    /// </code>
+    /// <br/>
+    /// . <strong>E</strong>:
+    /// Default echo command behaviour.<br/>
+    /// Prints a new line at the end of the last argument
     /// </summary>
     private static readonly string Options = "neE";
 
