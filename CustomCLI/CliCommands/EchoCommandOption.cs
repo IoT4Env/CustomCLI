@@ -23,7 +23,7 @@ public class EchoCommandOption : ICommand
     /// <br/>
     /// . <strong>E</strong>:
     /// Default echo command behaviour.<br/>
-    /// Prints a new line at the end of the last argument
+    /// Read special characters like \n, \t as normal text.
     /// </summary>
     private static readonly string Options = "neE";
 
