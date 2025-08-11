@@ -15,7 +15,7 @@ public enum CliCommands
     Exit,
     [Description("prints stuff on terminal")]
     Echo,
-    [Description("climb directory (one at a time)")]
+    [Description("climb directory(s)")]
     Cd,
     [Description("fall directory, meaning it descend by a specific amount the fs")]
     Fd,
