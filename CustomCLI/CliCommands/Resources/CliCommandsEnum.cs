@@ -24,9 +24,8 @@ public class CliCommandsClass : Enumeration<CliCommandsClass>
         new(CliCommandsEnum.X3i, "Executes .x3i files which contains the custom cli syntax", true, X3iCommand.CheckSyntax),
         new(CliCommandsEnum.Mv, "Moves file from one folder to another with the following syntax:\n\tmv file.txt->folder", true, MvCommand.CheckSyntax),
         new(CliCommandsEnum.Cp, "Copies the file from one location to another with the following syntax\n\tcp file.txt->folder", true, CpCommand.CheckSyntax),
-
+        new(CliCommandsEnum.Read, "Read a single line from the standard input and stores the value inside a variable", true, ReadCommand.CheckSyntax),
     };
-    //public static readonly CliCommandsClass Clc = new("shows all commands available", false, HelpCommand.CheckSyntax);
 
     private CliCommandsClass(CliCommandsEnum name, string description, bool hasArg, Func<string[], CommandSyntax?> syntax) 
         : base(name, description, hasArg, syntax) { }
@@ -54,4 +53,5 @@ public enum CliCommandsEnum
     X3i,
     Mv,
     Cp,
+    Read
 }

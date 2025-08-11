@@ -12,6 +12,9 @@ public class Kernel
     public static int Dept { get; set; } = 0;
     public static List<string> Tree { get; set; } = new() { string.Empty };
 
+    //Heap memory
+    public static List<object> Heap { get; set; } = new();
+
     //when "installing" new commands, the name should be added here
     private static List<string> ExternalCommands { get; set; } = new() { };
 
@@ -35,6 +38,7 @@ public class Kernel
         { CliCommandsEnum.Mv, Mv },
         { CliCommandsEnum.Cp, Cp },
         { CliCommandsEnum.Mirror, Mirror },
+        { CliCommandsEnum.Read, Read},
     };
 
     /// <summary>
@@ -240,6 +244,12 @@ public class Kernel
             MirrorCommand.Execute(syntax);
     }
 
+    private static void Read(CommandSyntax syntax)
+    {
+        if(ReadCommand.CanExecute(syntax))
+            ReadCommand.Execute(syntax);
+    }
+
     private static void Touch(CommandSyntax syntax)
     {
         CompositePath compositePath = UnpackPath(syntax.Arg);
@@ -294,7 +304,6 @@ public class Kernel
 
         if (X3iCommand.CanExecute(compositePath))
             X3iCommand.Execute(compositePath);
-
     }
 
     private static void Mv(CommandSyntax syntax)
