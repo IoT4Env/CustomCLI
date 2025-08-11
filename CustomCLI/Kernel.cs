@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
-using System.Reflection;
+using System.Text.Json;
 
 namespace CustomCLI;
 
-public static class Kernel
+public class Kernel
 {
     public static List<CurrentDir> Dirs { get; private set; } = new() { new CurrentDir { Name = string.Empty, Dept = -1 } };
     public static bool IsExit { get; private set; } = false;
@@ -106,10 +106,21 @@ public static class Kernel
         }
     }
 
+    public static CurrentDir GetCurrentDir(string dirTree)
+    {
+        return Dirs.FirstOrDefault(f => f.Name.Equals(dirTree) && f.Dept == Dept - 1);
+    }
     private static bool IsFolderEmpty(string name)
     {
-        CurrentDir dir = Dirs.FirstOrDefault(f => f.Name.Equals(name) && f.Dept == Dept);
+        //Get current directory from wich the command has been called
+        CurrentDir dir = GetCurrentDir(name);
         return dir.Folders.Count == 0 && dir.Files.Count == 0;
+    }
+    private static bool FileExists(string name)
+    {
+        string dirTree = Tree[Tree.Count- 1];
+        CurrentDir dir = GetCurrentDir(dirTree);
+        return dir.Files.Where(file => file.Name.Equals(name)).Count() != 0;
     }
 
     private static void Help()
@@ -176,7 +187,8 @@ public static class Kernel
             Dirs[Dept].Files.Add(new VirtualFile
             {
                 Color = color,
-                Name = arg
+                Name = arg,
+                Content = string.Empty
             });
         }
     }
@@ -255,6 +267,13 @@ public static class Kernel
 
     private static void Edit(string arg)
     {
+        //Static resources are accessed as is.
+        //If i update tit in this project, i cannot view the updated version on other projects...
+        if (!FileExists(arg))
+        {
+            Console.WriteLine($"no such file: {arg}");
+            return;
+        }
         var mainModule = Process.GetCurrentProcess().MainModule;
 
         string currentProject = mainModule.ModuleName;
@@ -267,7 +286,6 @@ public static class Kernel
 
         //This for is required to contruct path to second project (CustomEditor)
         //It could be avoided by having different project name (Visual Studio) and GitHub repo...
-        //Oh well, take it as terrible practice and avoid it the next time.
         for (int i = 0; i < exePath.Length; i++)
         {
             if (exePath[i].Equals(projects[0]))
@@ -280,19 +298,31 @@ public static class Kernel
             }
         }
 
+        CurrentDir dir = GetCurrentDir(Tree[Tree.Count- 1]);
+
+        Console.WriteLine(Dirs[0]);
+        Process process = new();
         //If file path is incorrcet for some reason(s), return from the method letting know the user what went wrong.
         try
         {
-            Process process = new();
-            process.StartInfo.FileName = string.Join('\\', exePath);
+            process.StartInfo = new()
+            {
+                FileName = string.Join('\\', exePath),
+                UseShellExecute = true,
+                CreateNoWindow = false,
+                Arguments = string.Join(" ", new string[2] { arg, JsonSerializer.Serialize(Dirs[0]) })
+            };
+            Console.WriteLine(process.StartInfo.Arguments);
+            //avoid user to write on current process while editing a file
 
             process.Start();
-
+            
             process.WaitForExit();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
+            process.Kill();
             return;
         }
     }
