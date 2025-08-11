@@ -1,25 +1,29 @@
 ﻿using CustomCLI.Commands;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection.Emit;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Text.Json;
 
 namespace CustomCLI;
 
 public class Kernel
 {
-    //TODO:
-    //Try creating a file in a folder outside the current folder
-    //eg:
-    //touch test/file.txt
-    //We need this for the move command
     public static List<CurrentDir> Dirs { get; set; } = new() { new CurrentDir { Name = string.Empty, Dept = -1 } };
     public static bool IsExit { get; set; } = false;
     public static int Dept { get; set; } = 0;
     public static List<string> Tree { get; set; } = new() { string.Empty };
+
+    private static List<Action> SimpleCommands = new() { Help, Cls, Ls, Exit };
+
+    private static Dictionary<CliCommands, Action<string>> ComplexCommands = new()
+           {
+               { CliCommands.Echo, arg => Echo(arg) },
+               { CliCommands.Cd, arg => Cd(arg) },
+               { CliCommands.Fd, arg => Fd(arg) },
+               { CliCommands.Touch, arg => Touch(arg) },
+               { CliCommands.Rm, arg => Rm(arg) },
+               { CliCommands.Mkdir, arg => MkDir(arg) },
+               { CliCommands.Rmdir, arg => Rmdir(arg) },
+               { CliCommands.Edit, arg => Edit(arg) },
+               { CliCommands.Cat, arg => Cat(arg) },
+               { CliCommands.Mv, arg => Mv(arg) }
+           };
 
     /// <summary>
     /// Executes command based on user input
@@ -32,66 +36,35 @@ public class Kernel
 
         if (Enum.TryParse<CliCommands>(args[0], ignoreCase: true, out var command))
         {
-            switch (command)
+            //we are checking if the command is one of the "simple" command
+            //The SimpleCommands list is not exessivly long (and probably will stay as it is)
+            //So we can acknoledge more iteration than needed...
+            foreach (var simpleCommand in SimpleCommands)
             {
-                case CliCommands.Help:
-                    Help();
-                    break;
-                case CliCommands.Cls:
-                    Cls();
-                    break;
-                case CliCommands.Echo:
-                    CheckSyntax(args, CliCommands.Echo, Echo);
-                    break;
-                case CliCommands.Cd:
-                    CheckSyntax(args, CliCommands.Cd, Cd);
-                    break;
-                case CliCommands.Fd:
-                    CheckSyntax(args, CliCommands.Fd, Fd);
-                    break;
-                case CliCommands.Touch:
-                    CheckSyntax(args, CliCommands.Touch, Touch);
-                    break;
-                case CliCommands.Rm:
-                    CheckSyntax(args, CliCommands.Rm, Rm);
-                    break;
-                case CliCommands.Mkdir:
-                    CheckSyntax(args, CliCommands.Mkdir, MkDir);
-                    break;
-                case CliCommands.Rmdir:
-                    CheckSyntax(args, CliCommands.Rmdir, Rmdir);
-                    break;
-                case CliCommands.Ls:
-                    Ls();
-                    break;
-                case CliCommands.Edit:
-                    CheckSyntax(args, CliCommands.Edit, Edit);
-                    break;
-                case CliCommands.Cat:
-                    CheckSyntax(args, CliCommands.Cat, Cat);
-                    break;
-                case CliCommands.Mv:
-                    CheckSyntax(args, CliCommands.Mv, Mv);
-                    break;
-                case CliCommands.Exit:
-                    IsExit = true;
-                    break;
-                default:
-                    break;
+                if (simpleCommand.Method.Name.Equals(command.ToString()))
+                {
+                    simpleCommand.Invoke();
+                    return;
+                }
             }
+
+            //if no simple commands are found, it finds the "complex" command and executes it
+            Action<string> method = ComplexCommands.FirstOrDefault(c => c.Key.Equals(command)).Value;
+
+            CheckSyntax(args, method);
             return;
         }
         Console.WriteLine($"No such command: {args[0]}");
     }
 
-    private static void CheckSyntax(string[] args, CliCommands command, Action<string> commandExec)
+    private static void CheckSyntax(string[] args, Action<string> commandExec)
     {
         args = args.Where(w => !string.IsNullOrEmpty(w)).ToArray();
 
         switch (args.Length)
         {
             case 1:
-                Console.WriteLine($"{command.ToString().ToLower()} requires param");
+                Console.WriteLine($"{commandExec.Method.Name.ToLower()} requires param");
                 break;
             case 2:
                 int quoteCount = args[1].Count(c => c.Equals('"'));
@@ -115,9 +88,9 @@ public class Kernel
                 if (isQuoted && args.Length == count)
                     commandExec.Invoke(args[1].Replace("\"", ""));
                 else if (isQuoted)
-                    Console.WriteLine($"{command.ToString().ToLower()} arguments exedeed: {string.Join(' ', args[count..args.Length])}");
+                    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[count..args.Length])}");
                 else
-                    Console.WriteLine($"{command.ToString().ToLower()} arguments exedeed: {string.Join(' ', args[2..args.Length])}");
+                    Console.WriteLine($"{commandExec.Method.Name.ToLower()} arguments exedeed: {string.Join(' ', args[2..args.Length])}");
 
                 break;
         }
@@ -221,9 +194,11 @@ public class Kernel
 
     private static void Cls() => ClsCommand.Execute();
 
-    private static void Echo(string arg) => EchoCommand.Execute(arg);
-
     private static void Ls() => LsCommand.Execute();
+
+    private static void Exit() => IsExit = true;
+
+    private static void Echo(string arg) => EchoCommand.Execute(arg);
 
     private static void Cd(string arg)
     {
@@ -273,15 +248,15 @@ public class Kernel
     {
         CompositePath compositePath = UnpackPath(arg);
 
-        if(EditCommand.CanExecute(compositePath))
+        if (EditCommand.CanExecute(compositePath))
             EditCommand.Execute(compositePath);
     }
 
     private static void Cat(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        
-        if(CatCommand.CanExecute(compositePath))
+
+        if (CatCommand.CanExecute(compositePath))
             CatCommand.Execute(compositePath);
     }
 
