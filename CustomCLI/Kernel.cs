@@ -1,4 +1,5 @@
 ﻿using CustomCLI.Commands;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection.Emit;
@@ -130,6 +131,10 @@ public class Kernel
     {
         return Dirs.FirstOrDefault(d => d.Name.Equals(folder) && d.Dept == dept);
     }
+    public static VirtualFile GetFileByPosition(string file, int dept)
+    {
+        return Dirs[dept].Files.FirstOrDefault(f => f.Name.Equals(file));
+    }
     public static CompositePath UnpackPath(string arg)
     {
         string[] args = arg.Split('/');
@@ -182,7 +187,7 @@ public class Kernel
 
     private static void Cd(string arg)
     {
-        if(CdCommand.CanExecute(arg))
+        if (CdCommand.CanExecute(arg))
             CdCommand.Execute(arg);
     }
 
@@ -271,17 +276,8 @@ public class Kernel
     {
         CompositePath compositePath = UnpackPath(arg);
 
-        #region Why not checking path-to-file before calling Cd?
-        //The Cd method contains the logic to automatically handle composite paths (like folder/file.txt) and simple paths (like file.txt)
-        //This approch reduces the cognitive load and simplifies the code
-        #endregion
-        Cd(compositePath.Folders);//if folder or file does not exist, the method returns
-
-        //the command will always try to delete the specified file
-        if (RmCommand.CanExecute(compositePath.LastArgName))
-            RmCommand.Execute(compositePath.LastArgName);
-
-        Fd(compositePath.LastArgIndex.ToString());
+        if (RmCommand.CanExecute(compositePath))
+            RmCommand.Execute(compositePath);
     }
 
     private static void MkDir(string arg)
@@ -291,7 +287,7 @@ public class Kernel
         if (compositePath.ArgsNum > 1)
         {
             //we are repeating the same logic for the Cd method!!!
-            if(!FolderExists(compositePath.Folders))
+            if (!FolderExists(compositePath.Folders))
             {
                 Console.WriteLine($"No such folder: {compositePath.Folders}");
                 return;
@@ -383,7 +379,7 @@ public class Kernel
             Console.WriteLine($"\n{compositePath.LastArgName} is not empty.\nRemove elements in it first");
             return;
         }
-        
+
         Dirs[Dept].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
     }
 
@@ -509,7 +505,7 @@ public class Kernel
     private static void Cat(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        if(compositePath.ArgsNum > 1)
+        if (compositePath.ArgsNum > 1)
         {
             if (!FolderExists(compositePath.Folders))
             {

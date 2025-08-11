@@ -1,19 +1,19 @@
 ﻿using static CustomCLI.Kernel;
 namespace CustomCLI.Commands;
 
-public class RmCommand : ICommand, ICheckPath
+public class RmCommand : ICommandComposite
 {
-    public static bool CanExecute(string arg)
+    public static bool CanExecute(CompositePath compositePath)
     {
-        if (!FileExists(arg))
+        VirtualFile file = GetFileByPosition(compositePath.LastArgName, compositePath.ArgsNum - 1);
+        if (file is null)
         {
-            Console.WriteLine($"No such file: {arg}");
+            Console.WriteLine($"No such file: {compositePath.LastArgName}");
             return false;
         }
         return true;
     }
-
-    public static void Execute(string arg) => Dirs[Dept].Files.RemoveAll(r => r.Name.Equals(arg));
-
-    public static bool CheckPathLength(int argsNum) => argsNum > 1;
+        
+    public static void Execute(CompositePath compositePath) =>
+        Dirs[compositePath.ArgsNum - 1].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
 }
