@@ -36,7 +36,7 @@ Console.WriteLine(Kernel.Dirs.Count);
 //    sb.Append(ctt);
 //    ctt = Console.ReadLine();
 //}
-sb.Append(Console.ReadLine());
+sb.Append("Console.ReadLine()");
 
 dir.Files.FirstOrDefault(f => f.Name.Equals(arg)).Content = sb.ToString();
 

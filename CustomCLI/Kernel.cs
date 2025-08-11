@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using System.Text.Json;
 
 namespace CustomCLI;
@@ -106,20 +107,19 @@ public class Kernel
         }
     }
 
-    public static CurrentDir GetCurrentDir(string dirTree)
+    public static CurrentDir GetCurrentDir()
     {
-        return Dirs.FirstOrDefault(f => f.Name.Equals(dirTree) && f.Dept == Dept - 1);
+        return Dirs.FirstOrDefault(f => f.Name.Equals(Tree[Tree.Count - 1]) && f.Dept == Dept - 1);
     }
     private static bool IsFolderEmpty(string name)
     {
         //Get current directory from wich the command has been called
-        CurrentDir dir = GetCurrentDir(name);
+        CurrentDir dir = GetCurrentDir();
         return dir.Folders.Count == 0 && dir.Files.Count == 0;
     }
     private static bool FileExists(string name)
     {
-        string dirTree = Tree[Tree.Count- 1];
-        CurrentDir dir = GetCurrentDir(dirTree);
+        CurrentDir dir = GetCurrentDir();
         return dir.Files.Where(file => file.Name.Equals(name)).Count() != 0;
     }
 
@@ -267,65 +267,89 @@ public class Kernel
 
     private static void Edit(string arg)
     {
-        //Static resources are accessed as is.
-        //If i update tit in this project, i cannot view the updated version on other projects...
         if (!FileExists(arg))
         {
             Console.WriteLine($"no such file: {arg}");
             return;
         }
-        var mainModule = Process.GetCurrentProcess().MainModule;
 
-        string currentProject = mainModule.ModuleName;
-        string[] exePath = mainModule.FileName.Split('\\');
+        Console.WriteLine($"Editing {arg}");
 
-        string[] projects = GetProjectsName(exePath, currentProject);
-
-        exePath[exePath.Length - 1] = $"{projects[1]}.exe";
-        int occurenceCount = 0;
-
-        //This for is required to contruct path to second project (CustomEditor)
-        //It could be avoided by having different project name (Visual Studio) and GitHub repo...
-        for (int i = 0; i < exePath.Length; i++)
+        StringBuilder sb = new();
+        string ctt = Console.ReadLine();
+        while (ctt != string.Empty)
         {
-            if (exePath[i].Equals(projects[0]))
-                occurenceCount++;
-
-            if (occurenceCount == 2)
-            {
-                exePath[i] = projects[1];
-                break;
-            }
+            sb.Append(ctt);
+            ctt = Console.ReadLine();
         }
 
-        CurrentDir dir = GetCurrentDir(Tree[Tree.Count- 1]);
-
-        Console.WriteLine(Dirs[0]);
-        Process process = new();
-        //If file path is incorrcet for some reason(s), return from the method letting know the user what went wrong.
-        try
-        {
-            process.StartInfo = new()
-            {
-                FileName = string.Join('\\', exePath),
-                UseShellExecute = true,
-                CreateNoWindow = false,
-                Arguments = string.Join(" ", new string[2] { arg, JsonSerializer.Serialize(Dirs[0]) })
-            };
-            Console.WriteLine(process.StartInfo.Arguments);
-            //avoid user to write on current process while editing a file
-
-            process.Start();
-            
-            process.WaitForExit();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-            process.Kill();
-            return;
-        }
+        CurrentDir dir = GetCurrentDir();
+        dir.Files.FirstOrDefault(f => f.Name.Equals(arg)).Content = sb.ToString();
+        
+        Console.WriteLine("Exiting editor");
     }
+    //proviamo a fare l'editor direttamente su questo progetto, ma tieni da conto la logica per il secondo progetto (potrebbe tornare utile in altre circostanze)
+    //private static void Edit(string arg)
+    //{
+    //    //Static resources are accessed as is.
+    //    //If i update it in this project, i cannot view the updated version on other projects...
+    //    if (!FileExists(arg))
+    //    {
+    //        Console.WriteLine($"no such file: {arg}");
+    //        return;
+    //    }
+    //    //var mainModule = Process.GetCurrentProcess().MainModule;
+
+    //    //string currentProject = mainModule.ModuleName;
+    //    //string[] exePath = mainModule.FileName.Split('\\');
+
+    //    //string[] projects = GetProjectsName(exePath, currentProject);
+
+    //    //exePath[exePath.Length - 1] = $"{projects[1]}.exe";
+    //    //int occurenceCount = 0;
+
+    //    ////This for is required to contruct path to second project (CustomEditor)
+    //    ////It could be avoided by having different project name (Visual Studio) and GitHub repo...
+    //    //for (int i = 0; i < exePath.Length; i++)
+    //    //{
+    //    //    if (exePath[i].Equals(projects[0]))
+    //    //        occurenceCount++;
+
+    //    //    if (occurenceCount == 2)
+    //    //    {
+    //    //        exePath[i] = projects[1];
+    //    //        break;
+    //    //    }
+    //    //}
+
+    //    //CurrentDir dir = GetCurrentDir(Tree[Tree.Count- 1]);
+
+    //    //Console.WriteLine(Dirs[0]);
+    //    //Process process = new();
+    //    ////If file path is incorrcet for some reason(s), return from the method letting know the user what went wrong.
+    //    //try
+    //    //{
+    //    //    process.StartInfo = new()
+    //    //    {
+    //    //        FileName = string.Join('\\', exePath),
+    //    //        UseShellExecute = true,
+    //    //        CreateNoWindow = false,
+    //    //        Arguments = string.Join(" ", new string[2] { arg, JsonSerializer.Serialize(Dirs[0]) })
+    //    //    };
+    //    //    Console.WriteLine(process.StartInfo.Arguments);
+    //    //    //avoid user to write on current process while editing a file
+
+    //    //    process.Start();
+
+    //    //    process.WaitForExit();
+    //    //}
+    //    //catch (Exception ex)
+    //    //{
+    //    //    Console.WriteLine(ex.ToString());
+    //    //    process.Kill();
+    //    //    return;
+    //    //}
+    //}
 
     /// <summary>
     /// Gets all projects in current solution, filtering hidden folders (begins with '.')
@@ -338,18 +362,18 @@ public class Kernel
     /// reference = "CustomCLI";
     /// return folders name inside "C:\Users\Utente\Documents\CustomCLI" path
     /// 
-    private static string[] GetProjectsName(string[] splittedPath, string reference)
-    {
-        reference =  Path.GetFileNameWithoutExtension(reference);
-        var adjustedPath = string.Empty;
+    //private static string[] GetProjectsName(string[] splittedPath, string reference)
+    //{
+    //    reference =  Path.GetFileNameWithoutExtension(reference);
+    //    var adjustedPath = string.Empty;
 
-        foreach (string s in splittedPath)
-        {
-            adjustedPath += $"{s}\\";
-            if (s.Equals(reference))
-                break;
-        }
+    //    foreach (string s in splittedPath)
+    //    {
+    //        adjustedPath += $"{s}\\";
+    //        if (s.Equals(reference))
+    //            break;
+    //    }
 
-        return Directory.GetDirectories(adjustedPath).Select(Path.GetFileName).Where(s => !s.Contains('.')).ToArray();
-    }
+    //    return Directory.GetDirectories(adjustedPath).Select(Path.GetFileName).Where(s => !s.Contains('.')).ToArray();
+    //}
 }
