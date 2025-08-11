@@ -1,4 +1,6 @@
-﻿namespace CustomCLI.Commands.ICommands;
+﻿using CustomCLI.CliCommands.Resources;
+
+namespace CustomCLI.Commands.ICommands;
 
 public interface ICommandComposite
 {

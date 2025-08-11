@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel;
 
-namespace CustomCLI;
+namespace CustomCLI.CliCommands.Resources;
 
 /// <summary>
 /// Simulated cmd commands
 /// </summary>
-public enum CliCommands
+public enum CliCommandsEnum
 {
     [Description("shows all commands available")]
     Help,
@@ -51,7 +51,7 @@ public static class CliCommandsExtension
     /// </summary>
     /// <param name="command"></param>
     /// <returns>Description of the CliCommand</returns>    
-    public static string ToDescriptionString(this CliCommands command)
+    public static string ToDescriptionString(this CliCommandsEnum command)
     {
         DescriptionAttribute[] attributes = (DescriptionAttribute[])command
            .GetType()

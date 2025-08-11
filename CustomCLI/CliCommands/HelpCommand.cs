@@ -1,4 +1,5 @@
-﻿using CustomCLI.Commands.ICommands;
+﻿using CustomCLI.CliCommands.Resources;
+using CustomCLI.Commands.ICommands;
 
 namespace CustomCLI.Commands;
 
@@ -18,7 +19,7 @@ public class HelpCommand : ICommand
     public static void Execute(CommandSyntax syntax)
     {
         Console.WriteLine("Command list:");
-        foreach (CliCommands command in Enum.GetValues(typeof(CliCommands)))
+        foreach (CliCommandsEnum command in Enum.GetValues(typeof(CliCommandsEnum)))
             Console.Write($"{command.ToString().ToLower()}\t{command.ToDescriptionString()}\n");
     }
 }
