@@ -67,6 +67,9 @@ public class Kernel
                 case CliCommands.Cat:
                     CheckSyntax(args, CliCommands.Cat, Cat);
                     break;
+                case CliCommands.Mv:
+                    CheckSyntax(args, CliCommands.Mv, Mv);
+                    break;
                 case CliCommands.Exit:
                     IsExit = true;
                     break;
@@ -136,6 +139,12 @@ public class Kernel
         CurrentDir? dir = GetCurrentDir();
         return dir.Files.Where(file => file.Name.Equals(name)).Count() != 0;
     }
+    private static bool FolderExists(string name)
+    {
+        CurrentDir? dir = GetCurrentDir();
+        name = name.Replace("/","");
+        return dir.Folders.Where(f => f.Name.Equals(name)).Count() != 0;
+    }
 
     private static void Help()
     {
@@ -188,9 +197,20 @@ public class Kernel
     {
         //touch test/file.txt
         //following 3 lines might be structured inside a method
-        var test = arg.Split('/');
-        var dirIndex = test.Length - 1;
-        var fileName = test[dirIndex];
+        int dirIndex;
+        string fileName;
+        if (arg.Contains('/'))
+        {
+            string[] test = arg.Split('/');
+            dirIndex = test.Length - 1;
+            fileName = test[dirIndex];
+        }
+        else
+        {
+            dirIndex = Dept;
+            fileName = arg;
+        }
+
 
         var splittedArg = arg.Split('.');
         if (Enum.TryParse<FileExtension>(splittedArg[splittedArg.Length - 1], ignoreCase: true, out var extension))
@@ -346,6 +366,22 @@ public class Kernel
         VirtualFile? file = GetVirtualFile(arg);
         Console.WriteLine(file.Content);
     }
+    private static void Mv(string arg)
+    {
+        string[] args = arg.Split("->");
+        if (!FileExists(args[0]))
+            Console.WriteLine($"No such file: {args[0]}");
+        else if (!FolderExists(args[1]))
+            Console.WriteLine($"No such folder: {args[1]}");
+        else
+        {
+            Rm(args[0]);
+            Console.WriteLine($"{args[1]}{args[0]}");
+            Touch($"{args[1]}{args[0]}");
+            Console.WriteLine("Arguments correct");
+        }
+    }
+
     //proviamo a fare l'editor direttamente su questo progetto, ma tieni da conto la logica per il secondo progetto (potrebbe tornare utile in altre circostanze)
     //private static void Edit(string arg)
     //{

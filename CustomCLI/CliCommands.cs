@@ -33,6 +33,8 @@ public enum CliCommands
     Edit,
     [Description("Prints file content on the terminal")]
     Cat,
+    [Description("Moves file from one folder to another with the following syntax:\n\tfile.txt->folder/")]
+    Mv,
 }
 
 public static class CliCommandsExtension
