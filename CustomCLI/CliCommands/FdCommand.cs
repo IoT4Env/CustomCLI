@@ -5,6 +5,11 @@ namespace CustomCLI.Commands;
 
 public class FdCommand : ICommand
 {
+    public static CommandSyntax? CheckSyntax(string[] syntax)
+    {
+        return null;
+    }
+
     /// <summary>
     /// validates if the command can execute
     /// </summary>

@@ -2,12 +2,12 @@
 
 public class Enumeration<TEnum> : IEquatable<Enumeration<TEnum>>
 {
-    public string Name { get; protected init; }
+    public Enum Name { get; protected init; }
     public string Description { get; protected init; }
     public bool HasArg { get; protected init; }
-    public Action<CommandSyntax> CheckSyntax { get; protected init; }
+    public Func<string[], CommandSyntax?> CheckSyntax { get; protected init; }
 
-    public Enumeration(string name, string description, bool hasArg, Action<CommandSyntax> syntax)
+    public Enumeration(Enum name, string description, bool hasArg, Func<string[], CommandSyntax?> syntax)
     {
         Name = name;
         Description = description;

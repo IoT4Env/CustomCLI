@@ -6,6 +6,11 @@ namespace CustomCLI.Commands;
 
 public class MvCommand : ICommandCombine
 {
+    public static CommandSyntax? CheckSyntax(string[] syntax)
+    {
+        return null;
+    }
+
     /// <summary>
     /// Checks if the given source file exists
     /// </summary>

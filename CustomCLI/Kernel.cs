@@ -1,4 +1,5 @@
-﻿using CustomCLI.CliCommands.Resources;
+﻿using CustomCLI.CliCommands;
+using CustomCLI.CliCommands.Resources;
 using CustomCLI.Commands;
 
 namespace CustomCLI;
@@ -14,29 +15,6 @@ public class Kernel
     private static List<string> ExternalCommands { get; set; } = new() { };
 
     //For each command type, a new folder has to be added
-    private static readonly Dictionary<CliCommandsClass, Action<CommandSyntax>> CliCommandsDict2 = new()
-    {
-        { CliCommandsClass.Help, Help },
-        //{ CliCommandsClass.Cls, Cls },
-        //{ CliCommandsClass.Ls, Ls },
-        //{ CliCommandsClass.Exit, Exit },
-        //{ CliCommandsClass.Echo, Echo },//arg => Echo(arg)
-        //{ CliCommandsClass.Cd, Cd },
-        //{ CliCommandsClass.Fd, Fd },
-        //{ CliCommandsClass.Touch, Touch },
-        //{ CliCommandsClass.Rm, Rm },
-        //{ CliCommandsClass.Mkdir, MkDir },
-        //{ CliCommandsClass.Rmdir, Rmdir },
-        //{ CliCommandsClass.Edit, Edit },
-        //{ CliCommandsClass.Cat, Cat },
-        //{ CliCommandsClass.X3i, X3i },
-        //{ CliCommandsClass.Mv, Mv },
-        //{ CliCommandsClass.Cp, Cp },
-        //{ CliCommandsClass.Mirror, Mirror },
-
-    };
-
-
     private static Dictionary<CliCommandsEnum, Action<CommandSyntax>> CliCommandsDict = new()
     {
         { CliCommandsEnum.Help, Help },
@@ -69,21 +47,25 @@ public class Kernel
 
         //add as many if as of how many commands types there are
         //CliCommands type, Docker type, Python type, and so on...
-        if (Enum.TryParse<CliCommandsClass>(args[0], ignoreCase: true, out var command2))
-        {
-
-        }
-
         if (Enum.TryParse<CliCommandsEnum>(args[0], ignoreCase: true, out var command))
         {
+            var item = CliCommandsClass.CliCommandsList.FirstOrDefault(el => el.Name.Equals(command));
+            if (item is null)
+            {
+                Console.WriteLine($"No such command: {args[0]}");
+                return;
+            }
+
+            var syntax = item.CheckSyntax.Invoke(args);
+            if (syntax is null)
+                return;
+
             if (CliCommandsDict.TryGetValue(command, out Action<CommandSyntax>? method))
             {
-                command.ToCheckSyntax();
-                CheckSyntax(args, method);
+                method.Invoke(syntax);
                 return;
             }
         }
-        Console.WriteLine($"No such command: {args[0]}");
     }
 
     private static void CheckSyntax(string[] args, Action<CommandSyntax> commandExec)
@@ -273,7 +255,7 @@ public class Kernel
 
     private static void Ls(CommandSyntax syntax) => LsCommand.Execute(syntax);
 
-    private static void Exit(CommandSyntax syntax) => IsExit = true;
+    private static void Exit(CommandSyntax syntax) => ExitCommand.Execute(syntax);
 
     private static void Echo(CommandSyntax syntax) => EchoCommand.Execute(syntax);
 

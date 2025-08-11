@@ -6,6 +6,11 @@ namespace CustomCLI.Commands;
 
 public class RmDirCommand : ICommandComposite
 {
+    public static CommandSyntax? CheckSyntax(string[] syntax)
+    {
+        return null;
+    }
+
     /// <summary>
     /// Checks if the folder exists and if it is empty
     /// </summary>

@@ -6,4 +6,5 @@ public interface ICommand
     //it is not needed to declare a default body for the methods inside the interface.
     static abstract void Execute(CommandSyntax syntax);
     static abstract bool CanExecute(CommandSyntax syntax);
+    static abstract CommandSyntax CheckSyntax(string[] syntax);
 }

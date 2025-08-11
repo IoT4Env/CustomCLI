@@ -6,6 +6,11 @@ namespace CustomCLI.Commands;
 
 public class MkDirCommand : ICommandComposite
 {
+    public static CommandSyntax? CheckSyntax(string[] syntax)
+    {
+        return null;
+    }
+
     /// <summary>
     /// Tracks the specific directory present somewhere in the file system and checks if it already exists
     /// </summary>

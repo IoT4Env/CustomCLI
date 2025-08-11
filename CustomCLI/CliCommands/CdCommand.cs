@@ -5,6 +5,11 @@ namespace CustomCLI.Commands;
 
 public class CdCommand : ICommand
 {
+    public static CommandSyntax? CheckSyntax(string[] syntax)
+    {
+        return null;
+    }
+
     /// <summary>
     /// validates if the command can execute
     /// </summary>
