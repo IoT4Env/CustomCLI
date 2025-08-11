@@ -33,26 +33,8 @@ public class TouchCommand : ICommandComposite
 
         if (Enum.TryParse<FileExtensions>(splittedArg[splittedArg.Length - 1], ignoreCase: true, out var extension))
         {
-            ConsoleColor color = 0;
-
-            switch (extension)
-            {
-                case FileExtensions.Txt:
-                    color = (ConsoleColor)FileExtensions.Txt;
-                    break;
-                case FileExtensions.Cs:
-                    color = (ConsoleColor)FileExtensions.Cs;
-                    break;
-                case FileExtensions.Zip:
-                    color = (ConsoleColor)FileExtensions.Zip;
-                    break;
-                case FileExtensions.Exe:
-                    color = (ConsoleColor)FileExtensions.Exe;
-                    break;
-                case FileExtensions.X3i:
-                    color = (ConsoleColor)FileExtensions.X3i;
-                    break;
-            }
+            ConsoleColor color = (ConsoleColor)Enum.GetValues<FileExtensions>()//Get all values from the FileExtension Enum
+                .FirstOrDefault(f => (int)extension == (int)f);//Extract the color where the extension int value equals one of the enum int value
 
             var offset = Tree.Count + compositePath.ArgsNum - 2;
             Dirs[offset].Files.Add(new VirtualFile

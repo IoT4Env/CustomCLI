@@ -35,6 +35,9 @@ public class EditCommand : ICommandComposite
             //            : ((key ^ 0x08) == 0x00) ? " \b"//if is delete
             //            : "");//if is canc
 
+            //On future features:
+            //Add cursor movement and possibility to reapon an existing file content.
+            //also, try to remove duplice esc key pressed check
             switch (key)
             {
                 case '\x0D'://if is enter
@@ -42,8 +45,8 @@ public class EditCommand : ICommandComposite
                     sb.Append('\n');//the returned key is \r, which is not the correct EOL char for a file
                     break;
                 case '\x08'://if is delete
-                    Console.WriteLine();
-                    sb.Append('\n');//the returned key is \r, which is not the correct EOL char for a file
+                    Console.Write(" \b");
+                    sb.Remove(sb.Length - 1, 1);
                     break;
                 case '\u001b'://need to check if esc twice to avoid the esc character to be inserted in the string builder
                     break;
