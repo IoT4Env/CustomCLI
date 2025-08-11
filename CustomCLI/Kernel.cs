@@ -239,7 +239,7 @@ public class Kernel
     {
         CompositePath compositePath = UnpackPath(arg);
 
-        if(TouchCommand.CanExecute(compositePath))
+        if (TouchCommand.CanExecute(compositePath))
             TouchCommand.Execute(compositePath);
     }
 
@@ -255,58 +255,16 @@ public class Kernel
     {
         CompositePath compositePath = UnpackPath(arg);
 
-        if(MkDirCommand.CanExecute(compositePath))
+        if (MkDirCommand.CanExecute(compositePath))
             MkDirCommand.Execute(compositePath);
     }
 
     private static void Rmdir(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        //folder(s) before last element
-        //need to factor better the code
-        if (compositePath.ArgsNum > 1)
-        {
-            if (!FolderExists(compositePath.Folders))
-            {
-                Console.WriteLine($"No such folder: {compositePath.Folders}");
-                return;
-            }
-            Cd(compositePath.Folders);
 
-            if (!FolderExists(compositePath.LastArgName))
-            {
-                Console.WriteLine($"No such folder: {compositePath.LastArgName}");
-                return;
-            }
-
-            if (!IsFolderEmpty(GetDirectoryByPosition(compositePath.LastArgName, compositePath.LastArgIndex)))
-            {
-                //TODO:
-                //Generate script that deleted all files in folder if the user wants to
-                Console.WriteLine($"\n{compositePath.LastArgName} is not empty.\nRemove elements in it first");
-                return;
-            }
-
-            Dirs[Dept].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
-            Fd(compositePath.LastArgIndex.ToString());
-            return;
-        }
-
-        if (!FolderExists(compositePath.LastArgName))
-        {
-            Console.WriteLine($"No such folder: {compositePath.LastArgName}");
-            return;
-        }
-
-        if (!IsFolderEmpty(GetDirectoryByPosition(compositePath.LastArgName, Dept)))
-        {
-            //TODO:
-            //Generate script that deleted all files in folder if the user wants to
-            Console.WriteLine($"\n{compositePath.LastArgName} is not empty.\nRemove elements in it first");
-            return;
-        }
-
-        Dirs[Dept].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
+        if (RmDirCommand.CanExecute(compositePath))
+            RmDirCommand.Execute(compositePath);
     }
 
     private static void Ls()
