@@ -222,6 +222,7 @@ public class Kernel
     private static void Cls() => ClsCommand.Execute();
 
     private static void Echo(string arg) => EchoCommand.Execute(arg);
+
     private static void Ls() => LsCommand.Execute();
 
     private static void Cd(string arg)
@@ -279,24 +280,11 @@ public class Kernel
     private static void Cat(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        if (compositePath.ArgsNum > 1)
-        {
-            if (!FolderExists(compositePath.Folders))
-            {
-                Console.WriteLine($"No such folder: {compositePath.Folders}");
-                return;
-            }
-            Cd(compositePath.Folders);
-
-            VirtualFile? file2 = GetVirtualFile(compositePath.LastArgName);
-            Console.WriteLine(file2.Content);
-
-            Fd(compositePath.LastArgIndex.ToString());
-            return;
-        }
-        VirtualFile? file = GetVirtualFile(arg);
-        Console.WriteLine(file.Content);
+        
+        if(CatCommand.CanExecute(compositePath))
+            CatCommand.Execute(compositePath);
     }
+
     private static void Mv(string arg)
     {
         string[] args = arg.Split("->");

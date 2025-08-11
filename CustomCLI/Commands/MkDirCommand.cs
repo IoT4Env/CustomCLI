@@ -17,7 +17,7 @@ public class MkDirCommand : ICommandComposite
 
         if (dir is not null)
         {
-            Console.WriteLine($"Directory {dir} already exists");
+            Console.WriteLine($"Directory {compositePath.LastArgName} already exists");
             return false;
         }
         return true;
