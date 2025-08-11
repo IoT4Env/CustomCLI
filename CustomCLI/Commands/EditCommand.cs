@@ -20,36 +20,37 @@ public class EditCommand : ICommandComposite
 
     public static void Execute(CompositePath compositePath)
     {
-        ConsoleKeyInfo cki;
+        char key;
         StringBuilder sb = new();
 
         do
         {
-            cki = Console.ReadKey();
-            switch (cki.Key)
+            key = Console.ReadKey().KeyChar;
+
+            //Just found out the power of conditional printing!
+            //Might come useful in other cases
+            //Console.Write(((key ^ 0x0D) == 0x00) ? '\n' //if is enter
+            //            : ((key ^ 0x08) == 0x00) ? " \b"//if is delete
+            //            : "");//if is canc
+
+                
+            //bitwise operator to check for the \r char (just to speed up the check for special keys like "enter" on every key press)
+            //shortly, we are checking if key bits are complementary to 0x0D with the bitwise XOR operator
+            if ((key ^ 0x0D) == 0x00)//if is enter
             {
-                case ConsoleKey.Enter:
-                    sb.Append('\n');
-                    Console.WriteLine();
-                    break;
-                case ConsoleKey.Spacebar:
-                    sb.Append(' ');
-                    break;
-                case ConsoleKey.Oem4: // ?
-                    sb.Append('?');
-                    break;
-                case ConsoleKey.Escape:
-                    Console.WriteLine();
-                    break;
-                case ConsoleKey.OemComma:
-                    sb.Append(',');
-                    break;
-                default:
-                    sb.Append(cki.Key.ToString().ToLower());
-                    break;
+                Console.WriteLine();
+                sb.Append('\n');//the returned key is \r, which is not the correct EOL char for a file
+                continue;
             }
+            else if ((key ^ 0x08) == 0x00)//if is delete
+            {
+                Console.Write(" \b");
+                sb.Remove(sb.Length - 1, 1);
+            }
+
+            sb.Append(key);
         }
-        while (cki.Key != ConsoleKey.Escape);
+        while (key != '\u001b');//esc is \u001b
 
         VirtualFolder dir = GetCurrentDir();
         dir.Files.FirstOrDefault(f => f.Name.Equals(compositePath.LastArgName)).Content = sb.ToString();

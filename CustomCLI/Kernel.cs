@@ -128,6 +128,7 @@ public class Kernel
     /// <returns>virtual folder object identified in the file system</returns>
     public static VirtualFolder GetFolderByPosition(string folder, int dept) =>
         Dirs[dept].Folders.FirstOrDefault(f => f.Name.Equals(folder));
+
     /// <summary>
     /// Get file by name inside the directory where the command is written
     /// </summary>
@@ -154,6 +155,7 @@ public class Kernel
         VirtualFolder? dir = GetCurrentDir();
         return dir.Files.Where(file => file.Name.Equals(name)).Count() != 0;
     }
+
     /// <summary>
     /// Checks if a specific folder exists inside the folder where the command is written
     /// </summary>
