@@ -22,7 +22,8 @@ public class Kernel
                { CliCommands.Rmdir, arg => Rmdir(arg) },
                { CliCommands.Edit, arg => Edit(arg) },
                { CliCommands.Cat, arg => Cat(arg) },
-               { CliCommands.Mv, arg => Mv(arg) }
+               { CliCommands.Mv, arg => Mv(arg) },
+               { CliCommands.Cp, arg => Cp(arg) }
            };
 
     /// <summary>
@@ -278,9 +279,18 @@ public class Kernel
         if (MvCommand.CanExecuteSource(source) && MvCommand.CanExecuteDestination(destination))
         {
             var fileToCreate = UnpackPath($"{destination.FullPath}/{source.LastArgName}");
-            var fileToDelete = UnpackPath(args[0]);
-            MvCommand.Execute(fileToCreate, fileToDelete);
+            MvCommand.Execute(fileToCreate, source);
         }
+    }
+
+    private static void Cp(string arg)
+    {
+        string[] args = arg.Split("->");
+        var source = UnpackPath(args[0]);
+        var destination = UnpackPath(args[1]);
+
+        if(CpCommand.CanExecuteSource(source) && CpCommand.CanExecuteDestination(destination))
+            CpCommand.Execute(source, destination);
     }
     #endregion
 
