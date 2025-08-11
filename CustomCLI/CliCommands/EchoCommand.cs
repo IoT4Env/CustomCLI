@@ -68,7 +68,7 @@ public class EchoCommand : ICommand
     public static void EchoFileSystemObject(IFSO fso) 
     {
         Console.ForegroundColor = fso.Color;
-        Console.WriteLine(fso.Name.Contains(' ')
+        Console.Write(fso.Name.Contains(' ')
             ? $"\"{fso.Name}\" "
             : $"{fso.Name} ");
         Console.ForegroundColor = ConsoleColor.Gray;

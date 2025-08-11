@@ -52,12 +52,14 @@ public class MkDirCommand : ICommandComposite
         //horizontal scaling:
         //Inside one folder there are n folders (and files)
         var foldersCheck = compositePath.Folders.Equals(string.Empty) ? "" : $"{compositePath.Folders}/";
+
+        //join the position of the command execution, the folders provided to the argument, and the folder name
+        var path = $"{string.Join('/', Tree)}/{foldersCheck}{compositePath.LastArgName}";
         Dirs[offset].Folders.Add(new VirtualFolder
         {
             Color = ConsoleColor.Blue,
             Name = compositePath.LastArgName,
-            //join the position of the command execution, the folders provided to the argument, and the folder name
-            Path = $"{string.Join('/', Tree)}/{foldersCheck}{compositePath.LastArgName}",
+            Path = path
         });
 
         //a reduncancy of the previus VirtualFolder
@@ -66,8 +68,7 @@ public class MkDirCommand : ICommandComposite
         {
             Dept = offset,
             Name = compositePath.LastArgName,
-            //join the position of the command execution, the folders provided to the argument, and the folder name
-            Path = $"{string.Join('/', Tree)}/{foldersCheck}{compositePath.LastArgName}",
+            Path = path
         });
     }
 }

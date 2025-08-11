@@ -34,5 +34,8 @@ public class LsCommand : ICommand
     {
         VirtualFolder? dir = GetCurrentDir();
         BrowseDirectory(dir, EchoCommand.EchoFileSystemObject);
+
+        if(dir.Files.Count != 0 || dir.Folders.Count != 0)
+            Console.WriteLine();
     }
 }
