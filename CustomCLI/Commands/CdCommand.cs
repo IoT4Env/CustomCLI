@@ -1,4 +1,6 @@
-﻿namespace CustomCLI.Commands;
+﻿using static CustomCLI.Kernel;
+
+namespace CustomCLI.Commands;
 
 public class CdCommand : ICommand
 {
@@ -7,7 +9,7 @@ public class CdCommand : ICommand
         var levels = arg.Split('/');
         foreach (var level in levels)
         {
-            if (!Kernel.FolderExists(level))
+            if (!FolderExists(level))
             {
                 Console.WriteLine($"No such directory: {level}");
                 return false;
@@ -21,8 +23,8 @@ public class CdCommand : ICommand
         var levels = arg.Split('/');
         foreach (var level in levels)
         {
-            Kernel.Dept++;
-            Kernel.Tree.Add(level);
+            Dept++;
+            Tree.Add(level);
         }
     }
 }
