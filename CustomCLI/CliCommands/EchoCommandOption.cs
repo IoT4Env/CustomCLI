@@ -10,6 +10,11 @@ public class EchoCommandOption : ICommand
     /// </summary>
     private static readonly string Options = "neE";
 
+    /// <summary>
+    /// Verify that a series of contrains are met
+    /// </summary>
+    /// <param name="syntax">CommandSyntax object</param>
+    /// <returns>True when all validation have passed</returns>
     public static bool CanExecute(CommandSyntax syntax)
     {
         if (syntax.Option is null)
@@ -42,6 +47,11 @@ public class EchoCommandOption : ICommand
         return true;
     }
 
+    /// <summary>
+    /// Checks the right syntax for the given option(s)
+    /// </summary>
+    /// <param name="syntax">CommandSyntax object</param>
+    /// <returns>A nullable CommandSyntax object</returns>
     public static CommandSyntax? CheckSyntax(string[] args)
         => args[0].Contains('-') && args.Length > 1
             ? new CommandSyntax
@@ -51,6 +61,10 @@ public class EchoCommandOption : ICommand
             }
             : null;
 
+    /// <summary>
+    /// Executes the command with the associated arguments
+    /// </summary>
+    /// <param name="syntax">CommandSyntax object</param>
     public static void Execute(CommandSyntax syntax)
     {
         var output = syntax.Arg;
