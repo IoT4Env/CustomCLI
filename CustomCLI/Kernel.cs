@@ -271,95 +271,9 @@ public class Kernel
     private static void Edit(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        ConsoleKeyInfo cki;
-        StringBuilder sb = new();
 
-        if (compositePath.ArgsNum > 1)
-        {
-            if (!FolderExists(compositePath.Folders))
-            {
-                Console.WriteLine($"No such folder: {compositePath.Folders}");
-                return;
-            }
-            Cd(compositePath.Folders);
-
-            Console.WriteLine($"Editing {compositePath.LastArgName}");
-
-            do
-            {
-                cki = Console.ReadKey();
-                switch (cki.Key)
-                {
-                    case ConsoleKey.Enter:
-                        sb.Append('\n');
-                        Console.WriteLine();
-                        break;
-                    case ConsoleKey.Spacebar:
-                        sb.Append(' ');
-                        break;
-                    case ConsoleKey.Oem4: // ?
-                        sb.Append('?');
-                        break;
-                    case ConsoleKey.Escape:
-                        Console.WriteLine();
-                        break;
-                    case ConsoleKey.OemComma:
-                        sb.Append(',');
-                        break;
-                    default:
-                        sb.Append(cki.Key.ToString().ToLower());
-                        break;
-                }
-            }
-            while (cki.Key != ConsoleKey.Escape);
-
-            CurrentDir dir2 = GetCurrentDir();
-            dir2.Files.FirstOrDefault(f => f.Name.Equals(compositePath.LastArgName)).Content = sb.ToString();
-
-            Console.WriteLine("Exiting editor");
-            Fd(compositePath.LastArgIndex.ToString());
-            return;
-        }
-        if (!FileExists(arg))
-        {
-            Console.WriteLine($"no such file: {arg}");
-            return;
-        }
-
-        Console.WriteLine($"Editing {arg}");
-
-        do
-        {
-            cki = Console.ReadKey();
-            switch (cki.Key)
-            {
-                case ConsoleKey.Enter:
-                    sb.Append('\n');
-                    Console.WriteLine();
-                    break;
-                case ConsoleKey.Spacebar:
-                    sb.Append(' ');
-                    break;
-                case ConsoleKey.Oem4: // ?
-                    sb.Append('?');
-                    break;
-                case ConsoleKey.Escape:
-                    Console.WriteLine();
-                    break;
-                case ConsoleKey.OemComma:
-                    sb.Append(',');
-                    break;
-                default:
-                    sb.Append(cki.Key.ToString().ToLower());
-                    break;
-            }
-        }
-        while (cki.Key != ConsoleKey.Escape);
-
-        CurrentDir dir = GetCurrentDir();
-        dir.Files.FirstOrDefault(f => f.Name.Equals(arg)).Content = sb.ToString();
-
-        Console.WriteLine("Exiting editor");
+        if(EditCommand.CanExecute(compositePath))
+            EditCommand.Execute(compositePath);
     }
 
     private static void Cat(string arg)
