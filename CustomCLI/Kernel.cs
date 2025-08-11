@@ -124,10 +124,10 @@ public class Kernel
     {
         return Dirs.FirstOrDefault(d => d.Name.Equals(Tree[Tree.Count - 1]) && d.Dept == Dept - 1);
     }
-    //public static CurrentDir GetFolderByPosition(string folder, int argsNum)
-    //{
-    //    return Dirs.FirstOrDefault(d => d.Name.Equals(folder) && d.Dept == argsNum - 1);
-    //}
+    public static CurrentDir GetFolderByPosition(string folder, int dept)
+    {
+        return Dirs.FirstOrDefault(d => d.Name.Equals(folder) && d.Dept == dept);
+    }
     public static CompositePath UnpackPath(string arg)
     {
         string[] args = arg.Split('/');
@@ -211,13 +211,49 @@ public class Kernel
     private static void Touch(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0]))
+        var splittedArg = compositePath.LastArgName.Split('.');
+
+        if (compositePath.ArgsNum > 1)
         {
-            Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
+            if (!FolderExists(compositePath.Folders[0]))
+            {
+                Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
+                return;
+            }
+            Cd(compositePath.Folders[0]);
+
+            if (Enum.TryParse<FileExtension>(splittedArg[splittedArg.Length - 1], ignoreCase: true, out var extension2))
+            {
+                ConsoleColor color = 0;
+
+                switch (extension2)
+                {
+                    case FileExtension.Txt:
+                        color = (ConsoleColor)FileExtension.Txt;
+                        break;
+                    case FileExtension.Cs:
+                        color = (ConsoleColor)FileExtension.Cs;
+                        break;
+                    case FileExtension.Zip:
+                        color = (ConsoleColor)FileExtension.Zip;
+                        break;
+                    case FileExtension.Exe:
+                        color = (ConsoleColor)FileExtension.Exe;
+                        break;
+                }
+
+                Dirs[Dept].Files.Add(new VirtualFile
+                {
+                    Color = color,
+                    Name = compositePath.LastArgName,
+                    Content = string.Empty
+                });
+            }
+
+            Fd(compositePath.LastArgIndex.ToString());
             return;
         }
 
-        var splittedArg = compositePath.LastArgName.Split('.');
         if (Enum.TryParse<FileExtension>(splittedArg[splittedArg.Length - 1], ignoreCase: true, out var extension))
         {
             ConsoleColor color = 0;
@@ -238,10 +274,7 @@ public class Kernel
                     break;
             }
 
-            //when creating a file directly in the current folder (without the path), the file is created one folder down
-            //this is caused by the the compositePath.LastArgIndex, which make sense onfly if compositePath.ArgsNum > 1
-            //see rmdir structure to better understand the bug
-            Dirs[compositePath.LastArgIndex].Files.Add(new VirtualFile
+            Dirs[Dept].Files.Add(new VirtualFile
             {
                 Color = color,
                 Name = compositePath.LastArgName,
@@ -253,9 +286,22 @@ public class Kernel
     private static void Rm(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0]))
+        if (compositePath.ArgsNum > 1)
         {
-            Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
+            if (!FolderExists(compositePath.Folders[0]))
+            {
+                Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
+                return;
+            }
+            Cd(compositePath.Folders[0]);
+
+            if (!FileExists(compositePath.LastArgName))
+            {
+                Console.WriteLine($"No such file: {compositePath.LastArgName}");
+                return;
+            }
+            Dirs[Dept].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
+            Fd(compositePath.LastArgIndex.ToString());
             return;
         }
 
@@ -337,7 +383,13 @@ public class Kernel
                 Cd(compositePath.Folders[i]);
             }
 
-            if (!IsFolderEmpty(GetCurrentDir()))
+            if (!FolderExists(compositePath.LastArgName))
+            {
+                Console.WriteLine($"No such folder: {compositePath.LastArgName}");
+                return;
+            }
+
+            if (!IsFolderEmpty(GetFolderByPosition(compositePath.LastArgName, compositePath.LastArgIndex)))
             {
                 //TODO:
                 //Generate script that deleted all files in folder if the user wants to
@@ -345,7 +397,7 @@ public class Kernel
                 return;
             }
 
-            Dirs[compositePath.LastArgIndex].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
+            Dirs[Dept].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
             Fd(compositePath.LastArgIndex.ToString());
             return;
         }
@@ -356,7 +408,7 @@ public class Kernel
             return;
         }
 
-        if (!IsFolderEmpty(GetCurrentDir()))
+        if (!IsFolderEmpty(GetFolderByPosition(compositePath.LastArgName, Dept)))
         {
             //TODO:
             //Generate script that deleted all files in folder if the user wants to
