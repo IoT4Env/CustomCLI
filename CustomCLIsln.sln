@@ -5,7 +5,12 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomCLI", "CustomCLI\CustomCLI.csproj", "{06BF5A9C-806E-4EAE-B097-641BAA891DEB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomEditor", "CustomEditor\CustomEditor.csproj", "{DCDDDF34-C5E0-40B8-ADF3-8A4F622C9F68}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomEditor", "CustomEditor\CustomEditor.csproj", "{DCDDDF34-C5E0-40B8-ADF3-8A4F622C9F68}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CC18E90B-4DF4-42AF-8307-CCBC590D2F51}"
+	ProjectSection(SolutionItems) = preProject
+		notes.txt = notes.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
