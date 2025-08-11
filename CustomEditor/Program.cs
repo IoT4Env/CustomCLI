@@ -20,7 +20,7 @@ if (arg.GetType() != typeof(string) || arg == null)
     Process.GetCurrentProcess().Kill();
 }
 
-CurrentDir dir = Kernel.GetCurrentDir(Kernel.Tree[Kernel.Tree.Count - 1]);
+//VirtualFolder dir = Kernel.GetCurrentDir(Kernel.Tree[Kernel.Tree.Count - 1]);
 
 //var dirs = Kernel.Dirs.FirstOrDefault(d => d.Equals(dir));
 //Console.WriteLine(JsonSerializer.Serialize(Kernel.Dirs[0]));
@@ -38,6 +38,6 @@ Console.WriteLine(Kernel.Dirs.Count);
 //}
 sb.Append("Console.ReadLine()");
 
-dir.Files.FirstOrDefault(f => f.Name.Equals(arg)).Content = sb.ToString();
+//dir.Files.FirstOrDefault(f => f.Name.Equals(arg)).Content = sb.ToString();
 
 Console.WriteLine("Process finshed");
