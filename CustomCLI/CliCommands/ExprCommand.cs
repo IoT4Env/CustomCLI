@@ -1,12 +1,21 @@
 ﻿using CustomCLI.Commands.ICommands;
-using System.Linq;
 using static CustomCLI.Memory;
 
 namespace CustomCLI.CliCommands;
 
 public class ExprCommand : ICommand
 {
+    /// <summary>
+    /// Currently supported operators are:
+    /// +-*/
+    /// </summary>
     private static string Operators { get; set; } = "+-*/";
+
+    /// <summary>
+    /// Checks if numbers to evaluate can be parsed into a number and if the operator is contained in the currently supported operators
+    /// </summary>
+    /// <param name="syntax">The syntax command object</param>
+    /// <returns>true if arguments to evaluate can be parsed to a number and if the operator is contained in the currently supported operators</returns>
     public static bool CanExecute(CommandSyntax syntax)
     {
         var arg = syntax.Arg.Split(" ");
@@ -23,6 +32,11 @@ public class ExprCommand : ICommand
         return isValidExpression;
     }
 
+    /// <summary>
+    /// Validates if the syntax for this argument is valid or not.
+    /// </summary>
+    /// <param name="args">Command arguments and/or options</param>
+    /// <returns>true if the syntax argument is in the form "num1 operator num2"</returns>
     public static CommandSyntax? CheckSyntax(string[] args)
     {
         if(args.Length == 0)
@@ -57,6 +71,10 @@ public class ExprCommand : ICommand
         };
     }
 
+    /// <summary>
+    /// Evaluates the given expression
+    /// </summary>
+    /// <param name="syntax">The syntax command object</param>
     public static void Execute(CommandSyntax syntax)
     {
         var args = syntax.Arg.Split(" ");
