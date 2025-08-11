@@ -216,19 +216,12 @@ public class Kernel
     }
 
     #region Commands
-    private static void Help()
-    {
-        if(HelpCommand.CanExecute())
-            HelpCommand.Execute();
-    }
 
-    private static void Cls() => Console.Clear();
+    private static void Help() => HelpCommand.Execute();
 
-    private static void Echo(string arg)
-    {
-        if (EchoCommand.CanExecute(arg))
-            EchoCommand.Execute(arg);
-    }
+    private static void Cls() => ClsCommand.Execute();
+
+    private static void Echo(string arg) => EchoCommand.Execute(arg);
 
     private static void Cd(string arg)
     {
