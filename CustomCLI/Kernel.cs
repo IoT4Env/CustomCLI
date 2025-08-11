@@ -222,6 +222,7 @@ public class Kernel
     private static void Cls() => ClsCommand.Execute();
 
     private static void Echo(string arg) => EchoCommand.Execute(arg);
+    private static void Ls() => LsCommand.Execute();
 
     private static void Cd(string arg)
     {
@@ -265,31 +266,6 @@ public class Kernel
 
         if (RmDirCommand.CanExecute(compositePath))
             RmDirCommand.Execute(compositePath);
-    }
-
-    private static void Ls()
-    {
-        CurrentDir? dir = GetCurrentDir();
-        foreach (VirtualFolder folder in dir.Folders)
-        {
-            Console.ForegroundColor = folder.Color;
-            if (folder.Name.Contains(' '))
-                Console.Write($"\"{folder.Name}\" ");
-            else
-                Console.Write($"{folder.Name} ");
-        }
-
-        foreach (VirtualFile file in dir.Files)
-        {
-            Console.ForegroundColor = file.Color;
-            if (file.Name.Contains(' '))
-                Console.Write($"\"{file.Name}\" ");
-            else
-                Console.Write($"{file.Name} ");
-        }
-        Console.ForegroundColor = ConsoleColor.Gray;
-
-        Console.WriteLine();
     }
 
     private static void Edit(string arg)
