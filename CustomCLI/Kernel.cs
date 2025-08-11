@@ -257,41 +257,34 @@ public static class Kernel
     {
         var mainModule = Process.GetCurrentProcess().MainModule;
 
-        var exePath = mainModule.FileName.Split('\\');
-        var exeName = Path.GetFileNameWithoutExtension(mainModule.ModuleName);
-        var adjustedPath = string.Empty;
+        string currentProject = mainModule.ModuleName;
+        string[] exePath = mainModule.FileName.Split('\\');
 
-        foreach(string s in exePath)
+        string[] projects = GetProjectsName(exePath, currentProject);
+
+        exePath[exePath.Length - 1] = $"{projects[1]}.exe";
+        int occurenceCount = 0;
+
+        //This for is required to contruct path to second project (CustomEditor)
+        //It could be avoided by having different project name (Visual Studio) and GitHub repo...
+        //Oh well, take it as terrible practice and avoid it the next time.
+        for (int i = 0; i < exePath.Length; i++)
         {
-            adjustedPath += $"{s}\\";
-            if (s.Equals(exeName))
-                break;
-        }
-
-        string[] projects = Directory.GetDirectories(adjustedPath).Select(Path.GetFileName).Where(s => !s.Contains('.')).ToArray();
-
-        var cePathSplitted = Path.GetFullPath($"{projects[1]}.exe").Split('\\');
-        var occurenceCount = 0;
-
-        for (int i = 0; i < cePathSplitted.Length; i++)
-        {
-            if (cePathSplitted[i].Equals(projects[0]))
+            if (exePath[i].Equals(projects[0]))
                 occurenceCount++;
 
             if (occurenceCount == 2)
             {
-                cePathSplitted[i] = projects[1];
+                exePath[i] = projects[1];
                 break;
             }
         }
-
-        string cePathAdjusted = string.Join('\\', cePathSplitted);
 
         //If file path is incorrcet for some reason(s), return from the method letting know the user what went wrong.
         try
         {
             Process process = new();
-            process.StartInfo.FileName = cePathAdjusted;
+            process.StartInfo.FileName = string.Join('\\', exePath);
 
             process.Start();
 
@@ -302,5 +295,31 @@ public static class Kernel
             Console.WriteLine(ex.ToString());
             return;
         }
+    }
+
+    /// <summary>
+    /// Gets all projects in current solution, filtering hidden folders (begins with '.')
+    /// </summary>
+    /// <param name="path">Path to the executable. Must be passed as string[]</param>
+    /// <param name="reference">Directory name contained inseide one of the path elements</param>
+    /// <returns>Projects name inside folder specified by the @reference parameter</returns>
+    /// Esample:
+    /// path = "C:\Users\Utente\Documents\CustomCLI\CustomCLI\bin\Debug\net7.0";
+    /// reference = "CustomCLI";
+    /// return folders name inside "C:\Users\Utente\Documents\CustomCLI" path
+    /// 
+    private static string[] GetProjectsName(string[] splittedPath, string reference)
+    {
+        reference =  Path.GetFileNameWithoutExtension(reference);
+        var adjustedPath = string.Empty;
+
+        foreach (string s in splittedPath)
+        {
+            adjustedPath += $"{s}\\";
+            if (s.Equals(reference))
+                break;
+        }
+
+        return Directory.GetDirectories(adjustedPath).Select(Path.GetFileName).Where(s => !s.Contains('.')).ToArray();
     }
 }
