@@ -124,10 +124,10 @@ public class Kernel
     {
         return Dirs.FirstOrDefault(d => d.Name.Equals(Tree[Tree.Count - 1]) && d.Dept == Dept - 1);
     }
-    public static CurrentDir GetFolderByPosition(string folder, int argsNum)
-    {
-        return Dirs.FirstOrDefault(d => d.Name.Equals(folder) && d.Dept == argsNum - 1);
-    }
+    //public static CurrentDir GetFolderByPosition(string folder, int argsNum)
+    //{
+    //    return Dirs.FirstOrDefault(d => d.Name.Equals(folder) && d.Dept == argsNum - 1);
+    //}
     public static CompositePath UnpackPath(string arg)
     {
         string[] args = arg.Split('/');
@@ -154,7 +154,7 @@ public class Kernel
         CurrentDir? dir = GetCurrentDir();
         return dir.Files.Where(file => file.Name.Equals(name)).Count() != 0;
     }
-    private static bool FolderExists(string name, int dept)
+    private static bool FolderExists(string name)
     {
         CurrentDir? dir = GetCurrentDir();
         name = name.Replace("/", "");
@@ -211,7 +211,7 @@ public class Kernel
     private static void Touch(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0], Dept))
+        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0]))
         {
             Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
             return;
@@ -237,6 +237,10 @@ public class Kernel
                     color = (ConsoleColor)FileExtension.Exe;
                     break;
             }
+
+            //when creating a file directly in the current folder (without the path), the file is created one folder down
+            //this is caused by the the compositePath.LastArgIndex, which make sense onfly if compositePath.ArgsNum > 1
+            //see rmdir structure to better understand the bug
             Dirs[compositePath.LastArgIndex].Files.Add(new VirtualFile
             {
                 Color = color,
@@ -249,7 +253,7 @@ public class Kernel
     private static void Rm(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0], Dept))
+        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0]))
         {
             Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
             return;
@@ -260,26 +264,50 @@ public class Kernel
             Console.WriteLine($"No such file: {compositePath.LastArgName}");
             return;
         }
-        //check why file is not delting
-        Dirs[compositePath.LastArgIndex].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
+        Dirs[Dept].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
     }
 
     private static void MkDir(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        if (compositePath.ArgsNum > 1 && !FolderExists(compositePath.Folders[0], Dept))
+        //we can use the GetCurrentDir method and change directories when needed
+        if (compositePath.ArgsNum > 1)
         {
-            Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
+            //checking folder prior folder to create
+            if(!FolderExists(compositePath.Folders[0]))
+            {
+                Console.WriteLine($"No such folder: {compositePath.Folders[0]}");
+                return;
+            }
+            Cd(compositePath.Folders[0]);
+
+            if (FolderExists(compositePath.LastArgName))
+            {
+                Console.WriteLine($"Folder {compositePath.LastArgName} already exists");
+                return;
+            }
+            Dirs[Dept].Folders.Add(new VirtualFolder
+            {
+                Color = ConsoleColor.Blue,
+                Name = compositePath.LastArgName
+            });
+
+            Dirs.Add(new CurrentDir
+            {
+                Name = compositePath.LastArgName,
+                Dept = compositePath.LastArgIndex
+            });
+            Fd(compositePath.LastArgIndex.ToString());
             return;
         }
 
-        if (FolderExists(compositePath.LastArgName, compositePath.LastArgIndex))
+        if (FolderExists(compositePath.LastArgName))
         {
             Console.WriteLine($"Folder {compositePath.LastArgName} already exists");
             return;
         }
 
-        Dirs[compositePath.LastArgIndex].Folders.Add(new VirtualFolder
+        Dirs[Dept].Folders.Add(new VirtualFolder
         {
             Color = ConsoleColor.Blue,
             Name = compositePath.LastArgName
@@ -288,7 +316,7 @@ public class Kernel
         Dirs.Add(new CurrentDir
         {
             Name = compositePath.LastArgName,
-            Dept = compositePath.LastArgIndex
+            Dept = Dept
         });
     }
 
@@ -296,11 +324,12 @@ public class Kernel
     {
         CompositePath compositePath = UnpackPath(arg);
         //folder(s) before last element
+        //need to factor better the code
         if (compositePath.ArgsNum > 1)
         {
             for(int i = 0; i < compositePath.ArgsNum - 1; i++)
             {
-                if (!FolderExists(compositePath.Folders[i], i))
+                if (!FolderExists(compositePath.Folders[i]))
                 {
                     Console.WriteLine($"No such folder: {compositePath.Folders[i]}");
                     return;
@@ -308,7 +337,7 @@ public class Kernel
                 Cd(compositePath.Folders[i]);
             }
 
-            if (!IsFolderEmpty(GetFolderByPosition(compositePath.LastArgName, compositePath.ArgsNum)))
+            if (!IsFolderEmpty(GetCurrentDir()))
             {
                 //TODO:
                 //Generate script that deleted all files in folder if the user wants to
@@ -321,13 +350,13 @@ public class Kernel
             return;
         }
 
-        if (!FolderExists(compositePath.LastArgName, compositePath.LastArgIndex))
+        if (!FolderExists(compositePath.LastArgName))
         {
             Console.WriteLine($"No such folder: {compositePath.LastArgName}");
             return;
         }
 
-        if (!IsFolderEmpty(GetFolderByPosition(compositePath.LastArgName, compositePath.ArgsNum)))
+        if (!IsFolderEmpty(GetCurrentDir()))
         {
             //TODO:
             //Generate script that deleted all files in folder if the user wants to
@@ -335,7 +364,7 @@ public class Kernel
             return;
         }
         
-        Dirs[compositePath.LastArgIndex].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
+        Dirs[Dept].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
     }
 
     private static void Ls()
@@ -419,7 +448,7 @@ public class Kernel
         string[] args = arg.Split("->");
         if (!FileExists(args[0]))
             Console.WriteLine($"No such file: {args[0]}");
-        else if (!FolderExists(args[1], Dept))
+        else if (!FolderExists(args[1]))
             Console.WriteLine($"No such folder: {args[1]}");
         else
         {
