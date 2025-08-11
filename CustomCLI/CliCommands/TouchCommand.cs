@@ -1,10 +1,29 @@
-﻿using CustomCLI.Commands.ICommands;
+﻿using CustomCLI.CliCommands.Resources;
+using CustomCLI.Commands.ICommands;
 using static CustomCLI.Kernel;
 
 namespace CustomCLI.Commands;
 
 public class TouchCommand : ICommandComposite
 {
+    public static CommandSyntax? CheckSyntax(string[] args)
+    {
+        //If no arguments where given
+        if (args.Length == 1)
+        {
+            Console.WriteLine("Argument required");
+        }
+        else if (args.Length == 2)
+        {
+            return new CommandSyntax()
+            {
+                Arg = args[1]
+            };
+        }
+        Console.WriteLine("Arguments excedeed");
+        return null;
+    }
+
     /// <summary>
     /// Tracks the specific file present somewhere in the file system and checks if the file exists
     /// </summary>
