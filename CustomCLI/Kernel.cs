@@ -214,7 +214,13 @@ public class Kernel
 
     private static void Exit(CommandSyntax syntax) => ExitCommand.Execute(syntax);
 
-    private static void Echo(CommandSyntax syntax) => EchoCommand.Execute(syntax);
+    private static void Echo(CommandSyntax syntax)
+    {
+        if (EchoCommand.CanExecute(syntax))
+            EchoCommand.Execute(syntax);
+        else if (EchoCommandOption.CanExecute(syntax))
+            EchoCommandOption.Execute(syntax);
+    }
 
     private static void Cd(CommandSyntax syntax)
     {
