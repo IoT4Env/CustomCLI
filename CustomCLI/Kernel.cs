@@ -119,10 +119,18 @@ public class Kernel
     /// </summary>
     /// <param name="file">file name</param>
     /// <param name="dept">dept number</param>
-    /// <returns>directory object identifid in the file system</returns>
+    /// <returns>virtual file object identifid in the file system</returns>
     public static VirtualFile GetFileByPosition(string file, int dept) =>
         Dirs[dept].Files.FirstOrDefault(f => f.Name.Equals(file));
 
+    /// <summary>
+    /// Gets specific folder based on name and dept
+    /// </summary>
+    /// <param name="folder">folder name</param>
+    /// <param name="dept">dept number</param>
+    /// <returns>virtual folder object identified in the file system</returns>
+    public static VirtualFolder GetFolderByPosition(string folder, int dept) =>
+        Dirs[dept].Folders.FirstOrDefault(f => f.Name.Equals(folder));
     /// <summary>
     /// Get file by name inside the directory where the command is written
     /// </summary>
@@ -184,7 +192,8 @@ public class Kernel
             ArgsNum = args.Length,
             LastArgIndex = fileIndex,
             LastArgName = args[fileIndex],
-            Folders = string.Join('/', args.Take(fileIndex))
+            Folders = string.Join('/', args.Take(fileIndex)),
+            FullPath = arg
         };
     }
 
@@ -263,16 +272,14 @@ public class Kernel
     private static void Mv(string arg)
     {
         string[] args = arg.Split("->");
-        if (!FileExists(args[0]))
-            Console.WriteLine($"No such file: {args[0]}");
-        else if (!FolderExists(args[1]))
-            Console.WriteLine($"No such folder: {args[1]}");
-        else
+        var source = UnpackPath(args[0]);
+        var destination = UnpackPath(args[1]);
+
+        if (MvCommand.CanExecuteSource(source) && MvCommand.CanExecuteDestination(destination))
         {
-            Rm(args[0]);
-            Console.WriteLine($"{args[1]}{args[0]}");
-            Touch($"{args[1]}{args[0]}");
-            Console.WriteLine("Arguments correct");
+            var fileToCreate = UnpackPath($"{destination.FullPath}/{source.LastArgName}");
+            var fileToDelete = UnpackPath(args[0]);
+            MvCommand.Execute(fileToCreate, fileToDelete);
         }
     }
     #endregion
