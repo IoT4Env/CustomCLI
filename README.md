@@ -1,7 +1,25 @@
+# Important
+
+This project currently is in .NET 7, so be sure to install that version before execution.
+
 # CustomCLI
 
 Personally i'm a fan of CLIs, so i decided to build one of them from SCRATCH.
 By that i mean no external libraries or tools, just pure C# code that i know what it does and how to write it.
+
+## Execution instructions
+
+- Windows:
+In a Windows environment, this project can be run as easily as opening visual studio community and pressing the start button.
+
+- Linux:
+In Linux things are done through the terminal, so it is required to open one inside the "CustomCLI" folder and type the following command:
+
+```sh
+dotnet run --verbosity quiet
+```
+
+"--verbosity quiet" silences all warnings in the output.
 
 ## How does it work
 
