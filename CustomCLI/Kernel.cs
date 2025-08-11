@@ -1,7 +1,5 @@
 ﻿using CustomCLI.CliCommands.Resources;
 using CustomCLI.Commands;
-using System.IO.Enumeration;
-using System.Linq;
 
 namespace CustomCLI;
 
@@ -11,36 +9,54 @@ public class Kernel
     public static bool IsExit { get; set; } = false;
     public static int Dept { get; set; } = 0;
     public static List<string> Tree { get; set; } = new() { string.Empty };
-    
+
     //when "installing" new commands, the name should be added here
-    private static List<string> ExternalCommands { get; set; } = new();
+    private static List<string> ExternalCommands { get; set; } = new() { };
 
-    //private static List<Action> SimpleCommands { get; } = new() { Help, Cls, Ls, Exit };//readonly property
-
-
-    //todo:
-    //Change folder name from "Commands" to "CliCommands"
     //For each command type, a new folder has to be added
+    private static readonly Dictionary<CliCommandsClass, Action<CommandSyntax>> CliCommandsDict2 = new()
+    {
+        { CliCommandsClass.Help, Help },
+        //{ CliCommandsClass.Cls, Cls },
+        //{ CliCommandsClass.Ls, Ls },
+        //{ CliCommandsClass.Exit, Exit },
+        //{ CliCommandsClass.Echo, Echo },//arg => Echo(arg)
+        //{ CliCommandsClass.Cd, Cd },
+        //{ CliCommandsClass.Fd, Fd },
+        //{ CliCommandsClass.Touch, Touch },
+        //{ CliCommandsClass.Rm, Rm },
+        //{ CliCommandsClass.Mkdir, MkDir },
+        //{ CliCommandsClass.Rmdir, Rmdir },
+        //{ CliCommandsClass.Edit, Edit },
+        //{ CliCommandsClass.Cat, Cat },
+        //{ CliCommandsClass.X3i, X3i },
+        //{ CliCommandsClass.Mv, Mv },
+        //{ CliCommandsClass.Cp, Cp },
+        //{ CliCommandsClass.Mirror, Mirror },
+
+    };
+
+
     private static Dictionary<CliCommandsEnum, Action<CommandSyntax>> CliCommandsDict = new()
-           {
-               {CliCommandsEnum.Help, Help},
-               {CliCommandsEnum.Cls, Cls },
-               {CliCommandsEnum.Ls, Ls },
-               {CliCommandsEnum.Exit, Exit },
-               { CliCommandsEnum.Echo, Echo },//arg => Echo(arg)
-               { CliCommandsEnum.Cd, Cd },
-               { CliCommandsEnum.Fd, Fd },
-               { CliCommandsEnum.Touch, Touch },
-               { CliCommandsEnum.Rm, Rm },
-               { CliCommandsEnum.Mkdir, MkDir },
-               { CliCommandsEnum.Rmdir, Rmdir },
-               { CliCommandsEnum.Edit, Edit },
-               { CliCommandsEnum.Cat, Cat },
-               { CliCommandsEnum.X3i, X3i },
-               { CliCommandsEnum.Mv, Mv },
-               { CliCommandsEnum.Cp, Cp },
-               { CliCommandsEnum.Mirror, Mirror },
-           };
+    {
+        { CliCommandsEnum.Help, Help },
+        { CliCommandsEnum.Cls, Cls },
+        { CliCommandsEnum.Ls, Ls },
+        { CliCommandsEnum.Exit, Exit },
+        { CliCommandsEnum.Echo, Echo },//arg => Echo(arg)
+        { CliCommandsEnum.Cd, Cd },
+        { CliCommandsEnum.Fd, Fd },
+        { CliCommandsEnum.Touch, Touch },
+        { CliCommandsEnum.Rm, Rm },
+        { CliCommandsEnum.Mkdir, MkDir },
+        { CliCommandsEnum.Rmdir, Rmdir },
+        { CliCommandsEnum.Edit, Edit },
+        { CliCommandsEnum.Cat, Cat },
+        { CliCommandsEnum.X3i, X3i },
+        { CliCommandsEnum.Mv, Mv },
+        { CliCommandsEnum.Cp, Cp },
+        { CliCommandsEnum.Mirror, Mirror },
+    };
 
     /// <summary>
     /// Executes command based on user input
@@ -51,13 +67,18 @@ public class Kernel
         if (args[0].Equals(string.Empty))
             return;
 
-
         //add as many if as of how many commands types there are
         //CliCommands type, Docker type, Python type, and so on...
+        if (Enum.TryParse<CliCommandsClass>(args[0], ignoreCase: true, out var command2))
+        {
+
+        }
+
         if (Enum.TryParse<CliCommandsEnum>(args[0], ignoreCase: true, out var command))
         {
             if (CliCommandsDict.TryGetValue(command, out Action<CommandSyntax>? method))
             {
+                command.ToCheckSyntax();
                 CheckSyntax(args, method);
                 return;
             }
@@ -72,7 +93,11 @@ public class Kernel
         //this should add more flexibility on the amount of arguments and options for the specific command
         args = args.Where(w => !string.IsNullOrEmpty(w)).ToArray();
 
-        CommandSyntax syntax = new();
+        CommandSyntax syntax = new()
+        {
+            Arg = string.Empty,
+            Option = string.Empty,
+        };
 
         if (args.Length == 1)
         {
@@ -80,7 +105,7 @@ public class Kernel
             return;
         }
 
-        if(args.Length == 2 && args[1][0].Equals('-'))
+        if (args.Length == 2 && args[1][0].Equals('-'))
         {
             syntax.Option = args[1];
             commandExec.Invoke(syntax);
@@ -185,9 +210,9 @@ public class Kernel
     public static void BrowseDirectory(VirtualFolder targetFolder, Action<VirtualFile> fileAction, Action<VirtualFolder> folderAction)
     {
         var mutableFileCount = targetFolder.Files.Count;
-        for(int i = 0; i < mutableFileCount; i++)
+        for (int i = 0; i < mutableFileCount; i++)
         {
-            if(mutableFileCount != targetFolder.Files.Count)
+            if (mutableFileCount != targetFolder.Files.Count)
                 mutableFileCount = targetFolder.Files.Count;
             fileAction.Invoke(targetFolder.Files[i]);
         }
@@ -346,7 +371,7 @@ public class Kernel
         var source = UnpackPath(args[0]);
         var destination = UnpackPath(args[1]);
 
-        if(CpCommand.CanExecuteSource(source) && CpCommand.CanExecuteDestination(destination))
+        if (CpCommand.CanExecuteSource(source) && CpCommand.CanExecuteDestination(destination))
             CpCommand.Execute(source, destination);
     }
 

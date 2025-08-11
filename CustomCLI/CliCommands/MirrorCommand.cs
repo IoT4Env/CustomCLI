@@ -5,7 +5,7 @@ namespace CustomCLI.Commands;
 
 public class MirrorCommand : ICommand
 {
-    private static CommandSyntax _syntax = new();
+    private static CommandSyntax syntax = new();
     /// <summary>
     /// Verifies if the given directory path exists in the REAL PC
     /// </summary>
@@ -52,8 +52,8 @@ public class MirrorCommand : ICommand
             if (!Directory.EnumerateFileSystemEntries(directory).Any())
                 continue;
 
-            _syntax.Arg = directory;
-            CdCommand.Execute(_syntax);
+            syntax.Arg = directory;
+            CdCommand.Execute(syntax);
 
             string[] files = Directory.GetFiles(directory);
             foreach (string file in files)
@@ -61,8 +61,8 @@ public class MirrorCommand : ICommand
 
             BrowseDirectories(Directory.GetDirectories(directory));
 
-            _syntax.Arg = "1";
-            FdCommand.Execute(_syntax);
+            syntax.Arg = "1";
+            FdCommand.Execute(syntax);
         }
     }
 

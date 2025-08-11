@@ -6,6 +6,14 @@ namespace CustomCLI.Commands;
 public class EchoCommand : ICommand
 {
     /// <summary>
+    /// A Dictionary with all options associated with this command
+    /// </summary>
+    private static readonly Dictionary<string, Action<string>> _options = new()
+    { 
+        { "-e", EOpt },
+        { string.Empty, Echo}//default value
+    };
+    /// <summary>
     /// validates if the command can execute
     /// </summary>
     /// <param name="arg">string to be displayed on the terminal</param>
@@ -13,10 +21,15 @@ public class EchoCommand : ICommand
     public static bool CanExecute(CommandSyntax syntax) => true;
 
     /// <summary>
-    /// print the specified string on the terminal
+    /// Print the specified string on the terminal.
+    /// Use the -e option to remove all 'e' from the argument.
     /// </summary>
     /// <param name="arg">string to be dislayed on the terminal</param>
-    public static void Execute(CommandSyntax syntax) => Console.WriteLine(syntax.Arg);
+    public static void Execute(CommandSyntax syntax) =>
+        _options[syntax.Option].Invoke(syntax.Arg);
+
+    private static void Echo(string arg) => Console.WriteLine(arg);
+    private static void EOpt(string opt) => Console.WriteLine(opt.Replace("e", ""));
 
     public static void EchoFileName(VirtualFile file)
     {
