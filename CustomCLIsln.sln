@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomCLI", "CustomCLI\CustomCLI.csproj", "{06BF5A9C-806E-4EAE-B097-641BAA891DEB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomCLI", "CustomCLI\CustomCLI.csproj", "{06BF5A9C-806E-4EAE-B097-641BAA891DEB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomEditor", "CustomEditor\CustomEditor.csproj", "{DCDDDF34-C5E0-40B8-ADF3-8A4F622C9F68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{06BF5A9C-806E-4EAE-B097-641BAA891DEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06BF5A9C-806E-4EAE-B097-641BAA891DEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06BF5A9C-806E-4EAE-B097-641BAA891DEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCDDDF34-C5E0-40B8-ADF3-8A4F622C9F68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCDDDF34-C5E0-40B8-ADF3-8A4F622C9F68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCDDDF34-C5E0-40B8-ADF3-8A4F622C9F68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCDDDF34-C5E0-40B8-ADF3-8A4F622C9F68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
