@@ -5,23 +5,44 @@ namespace CustomCLI.Commands;
 
 public class EchoCommand : ICommand
 {
+    /// <summary>
+    /// Check if the syntax comply rules for this command
+    /// </summary>
+    /// <param name="args">Command arguments and/or options</param>
+    /// <returns>A nullable CommandSyntax object</returns>
     public static CommandSyntax? CheckSyntax(string[] args)
     {
-        //If no arguments where given
-        if (args.Length == 1)
+        if (args.Length == 0)
         {
             Console.WriteLine("Argument required");
+            return null;
         }
-        else if (args.Length == 2)
+
+        var purifiedArgs = PurifyArgs(args);
+        if (_options.ContainsKey(purifiedArgs[0]))
+        {
+            return new CommandSyntax
+            {
+                Arg = string.Join(" ", purifiedArgs[1..purifiedArgs.Length]),
+                Option = purifiedArgs[0]
+            };
+        }
+        else
         {
             return new CommandSyntax()
             {
-                Arg = args[1]
+                Arg = string.Join(" ", purifiedArgs[0..purifiedArgs.Length])
             };
         }
-        Console.WriteLine("Arguments excedeed");
-        return null;
     }
+
+    /// <summary>
+    /// Removes all empty strings inside the given string[]
+    /// </summary>
+    /// <param name="args">Argument to remove empty strings from</param>
+    /// <returns>A new string[] without empty strings</returns>
+    private static string[] PurifyArgs(string[] args) => 
+        args.Where(arg => !string.IsNullOrEmpty(arg)).ToArray();
 
     /// <summary>
     /// A Dictionary with all options associated with this command
@@ -29,7 +50,6 @@ public class EchoCommand : ICommand
     private static readonly Dictionary<string, Action<string>> _options = new()
     { 
         { "-e", EOpt },
-        { string.Empty, Echo}//default value
     };
     /// <summary>
     /// validates if the command can execute
@@ -40,11 +60,17 @@ public class EchoCommand : ICommand
 
     /// <summary>
     /// Print the specified string on the terminal.
-    /// Use the -e option to remove all 'e' from the argument.
     /// </summary>
     /// <param name="arg">string to be dislayed on the terminal</param>
-    public static void Execute(CommandSyntax syntax) =>
+    public static void Execute(CommandSyntax syntax)
+    {
+        if(syntax.Option is null)
+        {
+            Echo(syntax.Arg);
+            return;
+        }
         _options[syntax.Option].Invoke(syntax.Arg);
+    }
 
     private static void Echo(string arg) => Console.WriteLine(arg);
     private static void EOpt(string opt) => Console.WriteLine(opt.Replace("e", ""));

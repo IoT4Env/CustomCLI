@@ -7,16 +7,15 @@ public class RmCommand : ICommandComposite
 {
     public static CommandSyntax? CheckSyntax(string[] args)
     {
-        //If no arguments where given
-        if (args.Length == 1)
+        if (args.Length == 0)
         {
             Console.WriteLine("Argument required");
         }
-        else if (args.Length == 2)
+        else if (args.Length == 1)
         {
             return new CommandSyntax()
             {
-                Arg = args[1]
+                Arg = args[0]
             };
         }
         Console.WriteLine("Arguments excedeed");

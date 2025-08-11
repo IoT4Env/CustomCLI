@@ -57,7 +57,8 @@ public class Kernel
                 return;
             }
 
-            var syntax = item.CheckSyntax.Invoke(args);
+            var commandArgs = args[1..args.Length];
+            var syntax = item.CheckSyntax.Invoke(commandArgs);
             if (syntax is null)
                 return;
 
