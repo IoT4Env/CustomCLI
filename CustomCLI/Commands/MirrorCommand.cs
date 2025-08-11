@@ -4,15 +4,16 @@ namespace CustomCLI.Commands;
 
 public class MirrorCommand : ICommand
 {
+    private static CommandSyntax _syntax = new();
     /// <summary>
     /// Verifies if the given directory path exists in the REAL PC
     /// </summary>
     /// <param name="arg">Full directory path</param>
     /// <returns>true if directory exists</returns>
-    public static bool CanExecute(string arg)
+    public static bool CanExecute(CommandSyntax syntax)
     {
-        string? directory = Path.GetDirectoryName(arg);
-        if (!Path.Exists(arg))
+        string? directory = Path.GetDirectoryName(syntax.Arg);
+        if (!Path.Exists(syntax.Arg))
         {
             Console.WriteLine($"No such directory: {directory}");
             return false;
@@ -25,10 +26,10 @@ public class MirrorCommand : ICommand
     /// Surround the path with doudle quotes (") if it contains spaces
     /// </summary>
     /// <param name="arg">Full directory path</param>
-    public static void Execute(string arg)
+    public static void Execute(CommandSyntax syntax)
     {
-        string[] rootFolders = Directory.GetDirectories(arg);
-        string[] rootFiles = Directory.GetFiles(arg);
+        string[] rootFolders = Directory.GetDirectories(syntax.Arg);
+        string[] rootFiles = Directory.GetFiles(syntax.Arg);
         
         foreach (string file in rootFiles)
             GetRealFiles(file);
@@ -50,13 +51,17 @@ public class MirrorCommand : ICommand
             if (!Directory.EnumerateFileSystemEntries(directory).Any())
                 continue;
 
-            CdCommand.Execute(directory);
+            _syntax.Arg = directory;
+            CdCommand.Execute(_syntax);
+
             string[] files = Directory.GetFiles(directory);
             foreach (string file in files)
                 GetRealFiles(file);
 
             BrowseDirectories(Directory.GetDirectories(directory));
-            FdCommand.Execute("1");
+
+            _syntax.Arg = "1";
+            FdCommand.Execute(_syntax);
         }
     }
 

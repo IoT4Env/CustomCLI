@@ -2,6 +2,6 @@
 
 public class CommandSyntax
 {
-    public string[]? Options { get; set; }
-    public string?[] Args { get; set; }
+    public string? Option { get; set; }
+    public string? Arg { get; set; }
 }

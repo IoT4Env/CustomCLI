@@ -9,13 +9,13 @@ public class HelpCommand : ICommand
     /// </summary>
     /// <param name="arg">Default value is an empty string</param>
     /// <returns>always return true</returns>
-    public static bool CanExecute(string arg = "") => true;
+    public static bool CanExecute(CommandSyntax syntax) => true;
 
     /// <summary>
     /// print the command name followed by the description
     /// </summary>
     /// <param name="arg">Default value is an empty string</param>
-    public static void Execute(string arg = "")
+    public static void Execute(CommandSyntax syntax)
     {
         Console.WriteLine("Command list:");
         foreach (CliCommands command in Enum.GetValues(typeof(CliCommands)))

@@ -14,18 +14,18 @@ public class Kernel
     //when "installing" new commands, the name should be added here
     private static List<string> ExternalCommands { get; set; } = new();
 
-    private static List<Action> SimpleCommands { get; } = new() { Help, Cls, Ls, Exit };//readonly property
+    //private static List<Action> SimpleCommands { get; } = new() { Help, Cls, Ls, Exit };//readonly property
 
 
     //todo:
     //Change folder name from "Commands" to "CliCommands"
     //For each command type, a new folder has to be added
-    private static Dictionary<CliCommands, Action<string>> CliCommandsDict = new()
+    private static Dictionary<CliCommands, Action<CommandSyntax>> CliCommandsDict = new()
            {
-               //{CliCommands.Help, Help},
-               //{CliCommands.Cls, Cls },
-               //{CliCommands.Ls, Ls },
-               //{CliCommands.Exit, Exit },
+               {CliCommands.Help, Help},
+               {CliCommands.Cls, Cls },
+               {CliCommands.Ls, Ls },
+               {CliCommands.Exit, Exit },
                { CliCommands.Echo, Echo },//arg => Echo(arg)
                { CliCommands.Cd, Cd },
                { CliCommands.Fd, Fd },
@@ -55,15 +55,7 @@ public class Kernel
         //CliCommands type, Docker type, Python type, and so on...
         if (Enum.TryParse<CliCommands>(args[0], ignoreCase: true, out var command))
         {
-            var simpleCommand = SimpleCommands.FirstOrDefault(c => c.Method.Name.Equals(command.ToString()));
-            if(simpleCommand != null)
-            {
-                simpleCommand.Invoke();
-                return;
-            }
-
-            //if no simple commands are found, it finds the "complex" command and calls the CheckSyntax method
-            if (CliCommandsDict.TryGetValue(command, out Action<string>? method))
+            if (CliCommandsDict.TryGetValue(command, out Action<CommandSyntax>? method))
             {
                 CheckSyntax(args, method);
                 return;
@@ -72,20 +64,33 @@ public class Kernel
         Console.WriteLine($"No such command: {args[0]}");
     }
 
-    //Remember to change Action<string> with Action<CommandSyntax>
-    private static void CheckSyntax(string[] args, Action<string> commandExec)
+    private static void CheckSyntax(string[] args, Action<CommandSyntax> commandExec)
     {
+        //re re re simplify this method...
+        //in the future, the check syntax can be applied inside each commands instead of a general way to write the command
+        //this should add more flexibility on the amount of arguments and options for the specific command
         args = args.Where(w => !string.IsNullOrEmpty(w)).ToArray();
 
         CommandSyntax syntax = new();
 
-        //check case of given options
-        //option written at full (-l, -p, etc...)
+        if (args.Length == 1)
+        {
+            commandExec.Invoke(syntax);
+            return;
+        }
+
+        if(args.Length == 2 && args[1][0].Equals('-'))
+        {
+            syntax.Option = args[1];
+            commandExec.Invoke(syntax);
+            return;
+        }
+
         string arguments = string.Join(' ', args[1..args.Length]);
 
         if (args[1][0].Equals('-'))
         {
-            syntax.Options = new string[] { args[1] };
+            syntax.Option = args[1];
             arguments = string.Join(' ', args[2..args.Length]);
         }
 
@@ -93,8 +98,8 @@ public class Kernel
         if (arguments.Where(s => s.Equals('"')).Count() is 2 or 0)
         {
             string quotedString = string.Join(' ', arguments).Replace("\"", "");
-            syntax.Args = new string[] { quotedString };
-            commandExec.Invoke(quotedString);//pass syntax here
+            syntax.Arg = quotedString;
+            commandExec.Invoke(syntax);//pass syntax here
             return;
         }
         Console.WriteLine("Missing char: \"");
@@ -236,94 +241,94 @@ public class Kernel
 
     #region Commands
 
-    private static void Help() => HelpCommand.Execute();
+    private static void Help(CommandSyntax syntax) => HelpCommand.Execute(syntax);
 
-    private static void Cls() => ClsCommand.Execute();
+    private static void Cls(CommandSyntax syntax) => ClsCommand.Execute(syntax);
 
-    private static void Ls() => LsCommand.Execute();
+    private static void Ls(CommandSyntax syntax) => LsCommand.Execute(syntax);
 
-    private static void Exit() => IsExit = true;
+    private static void Exit(CommandSyntax syntax) => IsExit = true;
 
-    private static void Echo(string arg) => EchoCommand.Execute(arg);
+    private static void Echo(CommandSyntax syntax) => EchoCommand.Execute(syntax);
 
-    private static void Cd(string arg)
+    private static void Cd(CommandSyntax syntax)
     {
-        if (CdCommand.CanExecute(arg))
-            CdCommand.Execute(arg);
+        if (CdCommand.CanExecute(syntax))
+            CdCommand.Execute(syntax);
     }
 
-    private static void Fd(string arg)
+    private static void Fd(CommandSyntax syntax)
     {
-        if (FdCommand.CanExecute(arg))
-            FdCommand.Execute(arg);
+        if (FdCommand.CanExecute(syntax))
+            FdCommand.Execute(syntax);
     }
 
-    private static void Mirror(string arg)
+    private static void Mirror(CommandSyntax syntax)
     {
-        if (MirrorCommand.CanExecute(arg))
-            MirrorCommand.Execute(arg);
+        if (MirrorCommand.CanExecute(syntax))
+            MirrorCommand.Execute(syntax);
     }
 
-    private static void Touch(string arg)
+    private static void Touch(CommandSyntax syntax)
     {
-        CompositePath compositePath = UnpackPath(arg);
+        CompositePath compositePath = UnpackPath(syntax.Arg);
 
         if (TouchCommand.CanExecute(compositePath))
             TouchCommand.Execute(compositePath);
     }
 
-    private static void Rm(string arg)
+    private static void Rm(CommandSyntax syntax)
     {
-        CompositePath compositePath = UnpackPath(arg);
+        CompositePath compositePath = UnpackPath(syntax.Arg);
 
         if (RmCommand.CanExecute(compositePath))
             RmCommand.Execute(compositePath);
     }
 
-    private static void MkDir(string arg)
+    private static void MkDir(CommandSyntax syntax)
     {
-        CompositePath compositePath = UnpackPath(arg);
+        CompositePath compositePath = UnpackPath(syntax.Arg);
 
         if (MkDirCommand.CanExecute(compositePath))
             MkDirCommand.Execute(compositePath);
     }
 
-    private static void Rmdir(string arg)
+    private static void Rmdir(CommandSyntax syntax)
     {
-        CompositePath compositePath = UnpackPath(arg);
+        CompositePath compositePath = UnpackPath(syntax.Arg);
 
         if (RmDirCommand.CanExecute(compositePath))
             RmDirCommand.Execute(compositePath);
     }
 
-    private static void Edit(string arg)
+    private static void Edit(CommandSyntax syntax)
     {
-        CompositePath compositePath = UnpackPath(arg);
+        CompositePath compositePath = UnpackPath(syntax.Arg);
 
         if (EditCommand.CanExecute(compositePath))
             EditCommand.Execute(compositePath);
     }
 
-    private static void Cat(string arg)
+    private static void Cat(CommandSyntax syntax)
     {
-        CompositePath compositePath = UnpackPath(arg);
+        CompositePath compositePath = UnpackPath(syntax.Arg);
 
         if (CatCommand.CanExecute(compositePath))
             CatCommand.Execute(compositePath);
     }
 
-    private static void X3i(string arg)
+    private static void X3i(CommandSyntax syntax)
     {
-        CompositePath compositePath = UnpackPath(arg);
+        CompositePath compositePath = UnpackPath(syntax.Arg);
 
         if (X3iCommand.CanExecute(compositePath))
             X3iCommand.Execute(compositePath);
 
     }
 
-    private static void Mv(string arg)
+    private static void Mv(CommandSyntax syntax)
     {
-        string[] args = arg.Split("->");
+        string[] args = syntax.Arg.Split("->");
         var source = UnpackPath(args[0]);
         var destination = UnpackPath(args[1]);
 
@@ -334,9 +339,9 @@ public class Kernel
         }
     }
 
-    private static void Cp(string arg)
+    private static void Cp(CommandSyntax syntax)
     {
-        string[] args = arg.Split("->");
+        string[] args = syntax.Arg.Split("->");
         var source = UnpackPath(args[0]);
         var destination = UnpackPath(args[1]);
 

@@ -10,12 +10,12 @@ public class CdCommand : ICommand
     /// </summary>
     /// <param name="arg">directory(s) name(s) to climb</param>
     /// <returns>true if all the specified directories exist</returns>
-    public static bool CanExecute(string arg)
+    public static bool CanExecute(CommandSyntax syntax)
     {
-        if(string.IsNullOrEmpty(arg))
+        if(string.IsNullOrEmpty(syntax.Arg))
             return false;
 
-        var levels = arg.Split('/');
+        var levels = syntax.Arg.Split('/');
         foreach (var level in levels)
         {
             if (!FolderExists(level))
@@ -31,9 +31,9 @@ public class CdCommand : ICommand
     /// climbs the tree to the desired directory
     /// </summary>
     /// <param name="arg">directory(s) name(s) to climb</param>
-    public static void Execute(string arg)
+    public static void Execute(CommandSyntax syntax)
     {
-        var levels = arg.Split('/');
+        var levels = syntax.Arg.Split('/');
         foreach (var level in levels)
         {
             Dept++;
