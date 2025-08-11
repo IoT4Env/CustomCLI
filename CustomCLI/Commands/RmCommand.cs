@@ -18,7 +18,11 @@ public class RmCommand : ICommandComposite
         }
         return true;
     }
-        
+    
+    /// <summary>
+    /// Removes the specified file
+    /// </summary>
+    /// <param name="compositePath">file name or path-to-file string</param>
     public static void Execute(CompositePath compositePath) =>
         Dirs[compositePath.ArgsNum - 1].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
 }
