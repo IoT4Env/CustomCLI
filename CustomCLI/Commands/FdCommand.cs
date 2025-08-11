@@ -1,4 +1,5 @@
-﻿using static CustomCLI.Kernel;
+﻿using CustomCLI.Commands.ICommands;
+using static CustomCLI.Kernel;
 
 namespace CustomCLI.Commands;
 

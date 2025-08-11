@@ -1,4 +1,5 @@
-﻿using static CustomCLI.Kernel;
+﻿using CustomCLI.Commands.ICommands;
+using static CustomCLI.Kernel;
 namespace CustomCLI.Commands;
 
 public class RmCommand : ICommandComposite
@@ -10,9 +11,7 @@ public class RmCommand : ICommandComposite
     /// <returns>execution permission</returns>
     public static bool CanExecute(CompositePath compositePath)
     {
-        var offset = Tree.Count - compositePath.ArgsNum;
-
-        VirtualFile file = GetFileByPosition(compositePath.LastArgName, offset);
+        VirtualFile file = GetFileByPosition(compositePath.LastArgName, compositePath.ArgsNum - 1);
         if (file is null)
         {
             Console.WriteLine($"No such file: {compositePath.LastArgName}");
@@ -27,7 +26,6 @@ public class RmCommand : ICommandComposite
     /// <param name="compositePath">file name or path-to-file string</param>
     public static void Execute(CompositePath compositePath)
     {
-        var offset = Tree.Count - compositePath.ArgsNum;
-        Dirs[offset].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
+        Dirs[compositePath.ArgsNum - 1].Files.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
     }
 }
