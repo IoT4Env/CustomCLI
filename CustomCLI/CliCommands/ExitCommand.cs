@@ -7,8 +7,17 @@ public class ExitCommand : ICommand
 {
     public static bool CanExecute(CommandSyntax syntax) => true;
 
-    public static CommandSyntax? CheckSyntax(string[] syntax)
+    public static CommandSyntax? CheckSyntax(string[] args)
     {
+        //If no arguments where given
+        if (args.Length == 1)
+        {
+            return new CommandSyntax()
+            {
+                Arg = args[0]
+            };
+        }
+        Console.WriteLine("Arguments excedeed");
         return null;
     }
 
