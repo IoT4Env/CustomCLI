@@ -24,7 +24,7 @@ public class X3iCommand : ICommandComposite
         var fileExtension = splittedFile[splittedFile.Length - 1];
         if (!fileExtension.Equals("x3i"))
         {
-            Console.WriteLine($"Unhandled file extension for x3i command: .{fileExtension}");
+            Console.WriteLine($"Unhandled file extension for {CliCommands.X3i} command: .{fileExtension}");
             return false;
         }
         return true;

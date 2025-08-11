@@ -31,26 +31,26 @@ public class TouchCommand : ICommandComposite
     {
         var splittedArg = compositePath.LastArgName.Split('.');
 
-        if (Enum.TryParse<FileExtension>(splittedArg[splittedArg.Length - 1], ignoreCase: true, out var extension))
+        if (Enum.TryParse<FileExtensions>(splittedArg[splittedArg.Length - 1], ignoreCase: true, out var extension))
         {
             ConsoleColor color = 0;
 
             switch (extension)
             {
-                case FileExtension.Txt:
-                    color = (ConsoleColor)FileExtension.Txt;
+                case FileExtensions.Txt:
+                    color = (ConsoleColor)FileExtensions.Txt;
                     break;
-                case FileExtension.Cs:
-                    color = (ConsoleColor)FileExtension.Cs;
+                case FileExtensions.Cs:
+                    color = (ConsoleColor)FileExtensions.Cs;
                     break;
-                case FileExtension.Zip:
-                    color = (ConsoleColor)FileExtension.Zip;
+                case FileExtensions.Zip:
+                    color = (ConsoleColor)FileExtensions.Zip;
                     break;
-                case FileExtension.Exe:
-                    color = (ConsoleColor)FileExtension.Exe;
+                case FileExtensions.Exe:
+                    color = (ConsoleColor)FileExtensions.Exe;
                     break;
-                case FileExtension.X3i:
-                    color = (ConsoleColor)FileExtension.X3i;
+                case FileExtensions.X3i:
+                    color = (ConsoleColor)FileExtensions.X3i;
                     break;
             }
 
@@ -59,7 +59,8 @@ public class TouchCommand : ICommandComposite
             {
                 Color = color,
                 Name = compositePath.LastArgName,
-                Content = string.Empty
+                Content = string.Empty,
+                Extension = extension
             });
         }
     }
