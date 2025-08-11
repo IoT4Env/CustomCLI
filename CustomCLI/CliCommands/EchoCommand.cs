@@ -1,7 +1,7 @@
 ﻿using CustomCLI.CliCommands;
-using CustomCLI.CliCommands.Resources;
 using CustomCLI.Commands.ICommands;
-using static CustomCLI.Kernel;
+using CustomCLI.FileSystem;
+using static CustomCLI.Memory;
 
 namespace CustomCLI.Commands;
 
@@ -23,7 +23,7 @@ public class EchoCommand : ICommand
 
         var purifiedArgs = PurifyArgs(args);
         var argumentSyntax = EchoCommandOption.CheckSyntax(purifiedArgs);
-        string[] newArgs = ResolveVariables(purifiedArgs);
+        object[] newArgs = ResolveVariables(purifiedArgs);
 
         if (argumentSyntax is null)
         {
@@ -56,14 +56,14 @@ public class EchoCommand : ICommand
     /// <param name="syntax">Syntax object containing argument and/or options of the echo command</param>
     public static void Execute(CommandSyntax syntax) => Console.WriteLine(syntax.Arg);
 
-    public static string[] ResolveVariables(string[] args)
+    public static object[] ResolveVariables(string[] args)
     {
-        List<string> newArgs = new List<string>();
+        List<object> newArgs = new();
         foreach (var arg in args)
         {
-            if (Heap.ContainsKey(arg))
+            if (Heap.TryGetValue(arg, out object content))
             {
-                newArgs.Add(Heap[arg].ToString());
+                newArgs.Add(content);
                 continue;
             }
             newArgs.Add(arg);

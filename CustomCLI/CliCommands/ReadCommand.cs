@@ -1,11 +1,11 @@
 ﻿using CustomCLI.Commands.ICommands;
-using static CustomCLI.Kernel;
+using static CustomCLI.Memory;
 
 namespace CustomCLI.CliCommands;
 
 public class ReadCommand : ICommand
 {
-    private static string Content { get; set; } = string.Empty;
+    private static object Content { get; set; } = string.Empty;
     /// <summary>
     /// Verifies if this command can be executed
     /// </summary>

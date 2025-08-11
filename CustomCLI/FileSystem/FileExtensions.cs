@@ -1,4 +1,4 @@
-﻿namespace CustomCLI.CliCommands.Resources;
+﻿namespace CustomCLI.FileSystem;
 
 public enum FileExtensions
 {
