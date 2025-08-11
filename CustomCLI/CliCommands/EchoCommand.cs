@@ -23,13 +23,13 @@ public class EchoCommand : ICommand
 
         var purifiedArgs = PurifyArgs(args);
         var argumentSyntax = EchoCommandOption.CheckSyntax(purifiedArgs);
-        if (!CanResolveVariables(args, out string undefined))
+        if (!CanResolveVariables(purifiedArgs, out string undefined))
         {
             Console.WriteLine($"{undefined} is not defined");
             return null;
         }
 
-        object[] newArgs = ResolveVariables(purifiedArgs);
+        string[] newArgs = ResolveVariables(purifiedArgs);
 
         if (argumentSyntax is null)
         {

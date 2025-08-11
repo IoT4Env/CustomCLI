@@ -5,7 +5,7 @@ namespace CustomCLI.CliCommands;
 
 public class ReadCommand : ICommand
 {
-    private static object Content { get; set; } = string.Empty;
+    private static string Content { get; set; } = string.Empty;
     /// <summary>
     /// Verifies if this command can be executed
     /// </summary>

@@ -36,6 +36,7 @@ public class Kernel
         { CliCommandsEnum.Cp, Cp },
         { CliCommandsEnum.Mirror, Mirror },
         { CliCommandsEnum.Read, Read},
+        { CliCommandsEnum.Expr, Expr},
     };
 
     /// <summary>
@@ -245,6 +246,12 @@ public class Kernel
     {
         if(ReadCommand.CanExecute(syntax))
             ReadCommand.Execute(syntax);
+    }
+
+    private static void Expr(CommandSyntax syntax)
+    {
+        if (ExprCommand.CanExecute(syntax))
+            ExprCommand.Execute(syntax);
     }
 
     private static void Touch(CommandSyntax syntax)
