@@ -1,6 +1,6 @@
 ﻿namespace CustomCLI.CliCommands.Resources;
 
-public class VirtualFolder
+public class VirtualFolder : IFSO
 {
     public int Dept { get; set; }
     public string Name { get; set; }

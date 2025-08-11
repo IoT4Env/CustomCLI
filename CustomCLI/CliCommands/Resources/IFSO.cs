@@ -1,10 +1,8 @@
 ﻿namespace CustomCLI.CliCommands.Resources;
 
-public class VirtualFile : IFSO
+public interface IFSO
 {
     public string Name { get; set; }
     public string Path { get; set; }
     public ConsoleColor Color { get; set; }
-    public string Content { get; set; }
-    public FileExtensions Extension { get; set; }
 }

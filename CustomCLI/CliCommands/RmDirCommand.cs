@@ -1,6 +1,7 @@
 ﻿using static CustomCLI.Kernel;
 using CustomCLI.Commands.ICommands;
 using CustomCLI.CliCommands.Resources;
+using System.Diagnostics;
 
 namespace CustomCLI.Commands;
 
@@ -40,20 +41,17 @@ public class RmDirCommand : ICommandComposite
         VirtualFolder targetFolder = GetDirectoryByPosition(compositePath.LastArgName, offset);
         if (!IsFolderEmpty(targetFolder))
         {
-            //TODO:
-            //Generate script that deletes all files and folders inside directory if the user wants to
             Console.WriteLine($"\n{compositePath.LastArgName} contains the following elements:");
 
-            BrowseDirectory(targetFolder, EchoCommand.EchoFileName, EchoCommand.EchoFolderName);
+            BrowseDirectory(targetFolder, EchoCommand.EchoFileSystemObject);
 
             Console.WriteLine("Would you like to remove them? [y/N]");
             string? response = Console.ReadLine();
             if (response.Equals("y"))
             {
-                BrowseDirectory(targetFolder, RmNestedFile, RmNestedFolder);
+                BrowseDirectory(targetFolder, RmNestedFileSystemObject);
                 return true;
             }
-
             return false;
         }
         return true;
@@ -73,16 +71,10 @@ public class RmDirCommand : ICommandComposite
         Dirs[offset].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
     }
 
-    private static void RmNestedFile(VirtualFile file)
+    private static void RmNestedFileSystemObject<FSO>(FSO fso)
+        where FSO : IFSO
     {
-        //string fullPath = $"{string.Join('/', Tree)}/{file.Name}";
-        CompositePath compositePath = UnpackPath(file.Path);
+        CompositePath compositePath = UnpackPath(fso.Path);
         RmCommand.Execute(compositePath);
-    }
-
-    private static void RmNestedFolder(VirtualFolder folder)
-    {
-        CompositePath compositePath = UnpackPath(folder.Path);
-        Execute(compositePath);
     }
 }
