@@ -138,7 +138,7 @@ public class Kernel
     /// <param name="folder">folder name</param>
     /// <param name="dept">dept number</param>
     /// <returns>directory object identifid in the file system</returns>
-    public static CurrentDir GetFolderByPosition(string folder, int dept) =>
+    public static CurrentDir GetDirectoryByPosition(string folder, int dept) =>
         Dirs.FirstOrDefault(d => d.Name.Equals(folder) && d.Dept == dept);
 
     /// <summary>
@@ -254,54 +254,9 @@ public class Kernel
     private static void MkDir(string arg)
     {
         CompositePath compositePath = UnpackPath(arg);
-        //we can use the GetCurrentDir method and change directories when needed
-        if (compositePath.ArgsNum > 1)
-        {
-            //we are repeating the same logic for the Cd method!!!
-            if (!FolderExists(compositePath.Folders))
-            {
-                Console.WriteLine($"No such folder: {compositePath.Folders}");
-                return;
-            }
-            Cd(compositePath.Folders);
 
-            if (FolderExists(compositePath.LastArgName))
-            {
-                Console.WriteLine($"Folder {compositePath.LastArgName} already exists");
-                return;
-            }
-            Dirs[Dept].Folders.Add(new VirtualFolder
-            {
-                Color = ConsoleColor.Blue,
-                Name = compositePath.LastArgName
-            });
-
-            Dirs.Add(new CurrentDir
-            {
-                Name = compositePath.LastArgName,
-                Dept = compositePath.LastArgIndex
-            });
-            Fd(compositePath.LastArgIndex.ToString());
-            return;
-        }
-
-        if (FolderExists(compositePath.LastArgName))
-        {
-            Console.WriteLine($"Folder {compositePath.LastArgName} already exists");
-            return;
-        }
-
-        Dirs[Dept].Folders.Add(new VirtualFolder
-        {
-            Color = ConsoleColor.Blue,
-            Name = compositePath.LastArgName
-        });
-
-        Dirs.Add(new CurrentDir
-        {
-            Name = compositePath.LastArgName,
-            Dept = Dept
-        });
+        if(MkDirCommand.CanExecute(compositePath))
+            MkDirCommand.Execute(compositePath);
     }
 
     private static void Rmdir(string arg)
@@ -324,7 +279,7 @@ public class Kernel
                 return;
             }
 
-            if (!IsFolderEmpty(GetFolderByPosition(compositePath.LastArgName, compositePath.LastArgIndex)))
+            if (!IsFolderEmpty(GetDirectoryByPosition(compositePath.LastArgName, compositePath.LastArgIndex)))
             {
                 //TODO:
                 //Generate script that deleted all files in folder if the user wants to
@@ -343,7 +298,7 @@ public class Kernel
             return;
         }
 
-        if (!IsFolderEmpty(GetFolderByPosition(compositePath.LastArgName, Dept)))
+        if (!IsFolderEmpty(GetDirectoryByPosition(compositePath.LastArgName, Dept)))
         {
             //TODO:
             //Generate script that deleted all files in folder if the user wants to
