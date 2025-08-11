@@ -1,9 +1,11 @@
 ﻿using CustomCLI.Commands.ICommands;
+using static CustomCLI.Kernel;
 
 namespace CustomCLI.CliCommands;
 
 public class ReadCommand : ICommand
 {
+    private static string Content { get; set; } = string.Empty;
     /// <summary>
     /// Verifies if this command can be executed
     /// </summary>
@@ -11,8 +13,8 @@ public class ReadCommand : ICommand
     /// <returns>true</returns>
     public static bool CanExecute(CommandSyntax syntax)
     {
-        string variable = Console.ReadLine() ?? string.Empty;
-        if (variable == null)
+        Content = Console.ReadLine() ?? string.Empty;
+        if (Content == null)
         {
             Console.WriteLine("Cannot read null");
             return false;
@@ -41,18 +43,23 @@ public class ReadCommand : ICommand
             };
         }
 
-        Console.WriteLine("Arguments exceede");
+        Console.WriteLine("Arguments exceeded");
         return null;
     }
 
     /// <summary>
     /// Stores the standard input content in a variable
+    /// It allocates memory in the Heap for the content stored inside the variable
+    /// If the variable name is already used, then its content is replaced with the new value
     /// </summary>
     /// <param name="syntax">Syntax object containing the variable name as the argument</param>
     public static void Execute(CommandSyntax syntax)
     {
-        string variable = Console.ReadLine() ?? string.Empty;
-
-        Console.WriteLine(variable);
+        if (Heap.ContainsKey($"${syntax.Arg}"))
+        {
+            Heap[$"${syntax.Arg}"] = Content;
+            return;
+        }
+        Heap.Add($"${syntax.Arg}", Content);
     }
 }

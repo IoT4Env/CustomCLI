@@ -1,5 +1,6 @@
 ﻿using CustomCLI.Commands.ICommands;
 using System.Text.RegularExpressions;
+using static CustomCLI.Kernel;
 
 namespace CustomCLI.CliCommands;
 
@@ -53,13 +54,16 @@ public class EchoCommandOption : ICommand
     /// <param name="syntax">CommandSyntax object</param>
     /// <returns>A nullable CommandSyntax object</returns>
     public static CommandSyntax? CheckSyntax(string[] args)
-        => args[0].Contains('-') && args.Length > 1
+    {
+        var newArgs = ResolveVariables(args);
+        return newArgs[0].Contains('-') && newArgs.Length > 1
             ? new CommandSyntax
             {
-                Arg = string.Join(" ", args[1..args.Length]),
-                Option = args[0].Replace("-", "")
+                Arg = string.Join(" ", newArgs[1..newArgs.Length]),
+                Option = newArgs[0].Replace("-", "")
             }
             : null;
+    }
 
     /// <summary>
     /// Executes the command with the associated arguments
@@ -78,5 +82,20 @@ public class EchoCommandOption : ICommand
             return;
         }
         Console.WriteLine(output);
+    }
+
+    public static string[] ResolveVariables(string[] args)
+    {
+        List<string> newArgs = new();
+        foreach (var arg in args)
+        {
+            if (Heap.ContainsKey(arg))
+            {
+                newArgs.Add(Heap[arg].ToString());
+                continue;
+            }
+            newArgs.Add(arg);
+        }
+        return newArgs.ToArray();
     }
 }
