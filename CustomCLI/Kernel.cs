@@ -55,8 +55,6 @@ public class Kernel
         //CliCommands type, Docker type, Python type, and so on...
         if (Enum.TryParse<CliCommands>(args[0], ignoreCase: true, out var command))
         {
-            var cliCommand = new Command<CliCommands>();
-
             var simpleCommand = SimpleCommands.FirstOrDefault(c => c.Method.Name.Equals(command.ToString()));
             if(simpleCommand != null)
             {
@@ -67,7 +65,7 @@ public class Kernel
             //if no simple commands are found, it finds the "complex" command and calls the CheckSyntax method
             if (CliCommandsDict.TryGetValue(command, out Action<string>? method))
             {
-                CheckSyntax(args, method, cliCommand);
+                CheckSyntax(args, method);
                 return;
             }
         }
@@ -75,48 +73,31 @@ public class Kernel
     }
 
     //Remember to change Action<string> with Action<CommandSyntax>
-    private static void CheckSyntax<Type>(string[] args, Action<string> commandExec, Command<Type> commandType)
+    private static void CheckSyntax(string[] args, Action<string> commandExec)
     {
         args = args.Where(w => !string.IsNullOrEmpty(w)).ToArray();
 
-        try
+        CommandSyntax syntax = new();
+
+        //check case of given options
+        //option written at full (-l, -p, etc...)
+        string arguments = string.Join(' ', args[1..args.Length]);
+
+        if (args[1][0].Equals('-'))
         {
-            CommandSyntax syntax = new();
-
-            //check case of given options
-            //option written at full (-l, -p, etc...)
-            if (args[1][0].Equals('-'))
-            {
-                syntax.Options = new string[] { args[1] };
-
-                string arguments2 = string.Join(' ', args[2..args.Length]);
-                if(arguments2.Where(s => s.Equals('"')).Count() is 2 or 0)
-                {
-                    string quotedString = string.Join(' ', arguments2).Replace("\"", "");
-                    syntax.Args = new string[] { quotedString };
-                    commandExec.Invoke(quotedString);//pass syntax here
-                    return;
-                }
-                throw new Exception("Missing char: \"");
-            }
-            
-            //suppose the remaining args are the given command arguments
-            string arguments = string.Join(' ', args[1..args.Length]);
-            if (arguments.Where(s => s.Equals('"')).Count() is 2 or 0)
-            {
-                string quotedString = string.Join(' ', arguments).Replace("\"", "");
-                syntax.Args = new string[] { quotedString };
-                commandExec.Invoke(quotedString);//pass syntax here
-                return;
-            }
-            throw new Exception("Missing char: \"");
-
+            syntax.Options = new string[] { args[1] };
+            arguments = string.Join(' ', args[2..args.Length]);
         }
-        catch (Exception ex)
+
+        //suppose the remaining args are the given command arguments
+        if (arguments.Where(s => s.Equals('"')).Count() is 2 or 0)
         {
-            Console.WriteLine(ex.Message.ToString());
+            string quotedString = string.Join(' ', arguments).Replace("\"", "");
+            syntax.Args = new string[] { quotedString };
+            commandExec.Invoke(quotedString);//pass syntax here
             return;
         }
+        Console.WriteLine("Missing char: \"");
     }
 
     #region Query file system
