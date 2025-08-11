@@ -1,7 +1,7 @@
 ﻿using static CustomCLI.Kernel;
 namespace CustomCLI.Commands;
 
-public class RmCommand : ICommand
+public class RmCommand : ICommand, ICheckPath
 {
     public static bool CanExecute(string arg)
     {
@@ -15,17 +15,5 @@ public class RmCommand : ICommand
 
     public static void Execute(string arg) => Dirs[Dept].Files.RemoveAll(r => r.Name.Equals(arg));
 
-    public static bool CheckPathLength(CompositePath compositePath)
-    {
-        if (compositePath.ArgsNum > 1)
-        {
-            if (!FolderExists(compositePath.Folders))
-            {
-                Console.WriteLine($"No such folder: {compositePath.Folders}");
-                return false;
-            }
-            return true;
-        }
-        return false;
-    }
+    public static bool CheckPathLength(int argsNum) => argsNum > 1;
 }

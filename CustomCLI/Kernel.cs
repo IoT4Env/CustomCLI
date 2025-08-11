@@ -271,20 +271,17 @@ public class Kernel
     {
         CompositePath compositePath = UnpackPath(arg);
 
-        if (RmCommand.CheckPathLength(compositePath))
-        {
-            CdCommand.Execute(compositePath.Folders);
+        #region Why not checking path-to-file before calling Cd?
+        //The Cd method contains the logic to automatically handle composite paths (like folder/file.txt) and simple paths (like file.txt)
+        //This approch reduces the cognitive load and simplifies the code
+        #endregion
+        Cd(compositePath.Folders);//if folder or file does not exist, the method returns
 
-            if (RmCommand.CanExecute(compositePath.LastArgName))
-            {
-                RmCommand.Execute(compositePath.LastArgName);
-                FdCommand.Execute(compositePath.LastArgIndex.ToString());
-            }
-            return;
-        }
-
+        //the command will always try to delete the specified file
         if (RmCommand.CanExecute(compositePath.LastArgName))
             RmCommand.Execute(compositePath.LastArgName);
+
+        Fd(compositePath.LastArgIndex.ToString());
     }
 
     private static void MkDir(string arg)
