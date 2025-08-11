@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
 
@@ -57,6 +58,9 @@ public class Kernel
                 case CliCommands.Edit:
                     CheckSyntax(args, CliCommands.Edit, Edit);
                     break;
+                case CliCommands.Cat:
+                    CheckSyntax(args, CliCommands.Cat, Cat);
+                    break;
                 case CliCommands.Exit:
                     IsExit = true;
                     break;
@@ -109,17 +113,21 @@ public class Kernel
 
     public static CurrentDir GetCurrentDir()
     {
-        return Dirs.FirstOrDefault(f => f.Name.Equals(Tree[Tree.Count - 1]) && f.Dept == Dept - 1);
+        return Dirs.FirstOrDefault(d => d.Name.Equals(Tree[Tree.Count - 1]) && d.Dept == Dept - 1);
+    }
+    public static VirtualFile GetVirtualFile(string file)
+    {
+        return GetCurrentDir().Files.FirstOrDefault(f => f.Name.Equals(file));
     }
     private static bool IsFolderEmpty(string name)
     {
         //Get current directory from wich the command has been called
-        CurrentDir dir = GetCurrentDir();
+        CurrentDir? dir = GetCurrentDir();
         return dir.Folders.Count == 0 && dir.Files.Count == 0;
     }
     private static bool FileExists(string name)
     {
-        CurrentDir dir = GetCurrentDir();
+        CurrentDir? dir = GetCurrentDir();
         return dir.Files.Where(file => file.Name.Equals(name)).Count() != 0;
     }
 
@@ -242,7 +250,7 @@ public class Kernel
 
     private static void Ls()
     {
-        CurrentDir dir = Dirs.FirstOrDefault(f => f.Name.Equals(Tree[Tree.Count - 1]) && f.Dept == Dept - 1);
+        CurrentDir? dir = GetCurrentDir();
         foreach (VirtualFolder folder in dir.Folders)
         {
             Console.ForegroundColor = folder.Color;
@@ -287,6 +295,12 @@ public class Kernel
         dir.Files.FirstOrDefault(f => f.Name.Equals(arg)).Content = sb.ToString();
         
         Console.WriteLine("Exiting editor");
+    }
+
+    private static void Cat(string arg)
+    {
+        VirtualFile? file = GetVirtualFile(arg);
+        Console.WriteLine(file.Content);
     }
     //proviamo a fare l'editor direttamente su questo progetto, ma tieni da conto la logica per il secondo progetto (potrebbe tornare utile in altre circostanze)
     //private static void Edit(string arg)
