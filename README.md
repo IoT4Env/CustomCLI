@@ -119,7 +119,7 @@ Syntax:\
 
 ```z:> mirror "C:\Users\user1\Template for testing"```
 
-Recreates the entire directory structure inside this simulated environment.
+Recreates the entire directory structure inside this simulated environment.\
 It does NOT affect real files and folders in the user PC.
 
 <div id="read"></div>
