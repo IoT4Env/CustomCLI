@@ -173,15 +173,27 @@ public class Kernel
 
     public static void BrowseDirectory(VirtualFolder targetFolder, Action<VirtualFile> fileAction, Action<VirtualFolder> folderAction)
     {
-        foreach(var file in targetFolder.Files)
-            fileAction.Invoke(file);
-
-        foreach (var folder in targetFolder.Folders)
+        var mutableFileCount = targetFolder.Files.Count;
+        for(int i = 0; i < mutableFileCount; i++)
         {
-            folderAction.Invoke(folder);
+            if(mutableFileCount != targetFolder.Files.Count)
+                mutableFileCount = targetFolder.Files.Count;
+            fileAction.Invoke(targetFolder.Files[i]);
+        }
 
-            if(!IsFolderEmpty(folder))
-                BrowseDirectory(folder, fileAction, folderAction);
+        var mutableFolderCount = targetFolder.Folders.Count;
+        for (int i = 0; i < mutableFolderCount; i++)
+        {
+            if (mutableFolderCount != targetFolder.Folders.Count)
+                mutableFolderCount = targetFolder.Folders.Count;
+            folderAction.Invoke(targetFolder.Folders[i]);
+
+            //already checkd if the list has beed changed
+            if (i <= mutableFolderCount)
+                continue;
+
+            if (!IsFolderEmpty(targetFolder.Folders[i]))
+                BrowseDirectory(targetFolder.Folders[i], fileAction, folderAction);
         }
         Console.WriteLine();
     }
@@ -202,6 +214,10 @@ public class Kernel
     public static CompositePath UnpackPath(string arg)
     {
         string[] args = arg.Split('/');
+
+        //chech if the path begins with '/'
+        if (args[0].Equals(string.Empty))
+            args = args[1..args.Length];
         int fileIndex = args.Length - 1;
         return new CompositePath()
         {

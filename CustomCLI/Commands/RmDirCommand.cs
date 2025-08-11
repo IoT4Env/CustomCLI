@@ -48,19 +48,26 @@ public class RmDirCommand : ICommandComposite
     public static void Execute(CompositePath compositePath)
     {
         var offset = Tree.Count + compositePath.ArgsNum - 2;
+        var a = Dirs[offset].Folders;
+        //Remove from Dirs
+        Dirs.Remove(Dirs.FirstOrDefault(f => f.Name.Equals(compositePath.LastArgName)));
+
+        var b = Dirs[offset].Folders;
+
+        //Actual directory deletion
         Dirs[offset].Folders.RemoveAll(r => r.Name.Equals(compositePath.LastArgName));
     }
 
     private static void RmNestedFile(VirtualFile file)
     {
         //string fullPath = $"{string.Join('/', Tree)}/{file.Name}";
-        CompositePath compositePath = UnpackPath(file.Name);
+        CompositePath compositePath = UnpackPath(file.Path);
         RmCommand.Execute(compositePath);
     }
 
     private static void RmNestedFolder(VirtualFolder folder)
     {
-        CompositePath compositePath = UnpackPath(folder.Name);
+        CompositePath compositePath = UnpackPath(folder.Path);
         Execute(compositePath);
     }
 }
