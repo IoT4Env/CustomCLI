@@ -23,6 +23,12 @@ public class EchoCommand : ICommand
 
         var purifiedArgs = PurifyArgs(args);
         var argumentSyntax = EchoCommandOption.CheckSyntax(purifiedArgs);
+        if (!CanResolveVariables(args, out string undefined))
+        {
+            Console.WriteLine($"{undefined} is not defined");
+            return null;
+        }
+
         object[] newArgs = ResolveVariables(purifiedArgs);
 
         if (argumentSyntax is null)
@@ -55,21 +61,6 @@ public class EchoCommand : ICommand
     /// </summary>
     /// <param name="syntax">Syntax object containing argument and/or options of the echo command</param>
     public static void Execute(CommandSyntax syntax) => Console.WriteLine(syntax.Arg);
-
-    public static object[] ResolveVariables(string[] args)
-    {
-        List<object> newArgs = new();
-        foreach (var arg in args)
-        {
-            if (Heap.TryGetValue(arg, out object content))
-            {
-                newArgs.Add(content);
-                continue;
-            }
-            newArgs.Add(arg);
-        }
-        return newArgs.ToArray();
-    }
 
     /// <summary>
     /// Prints the name of the given file system object in the terminal.
