@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
@@ -7,6 +8,11 @@ namespace CustomCLI;
 
 public class Kernel
 {
+    //TODO:
+    //Try creating a file in a folder outside the current folder
+    //eg:
+    //touch test/file.txt
+    //We need this for the move command
     public static List<CurrentDir> Dirs { get; private set; } = new() { new CurrentDir { Name = string.Empty, Dept = -1 } };
     public static bool IsExit { get; private set; } = false;
     public static int Dept { get; private set; } = 0;
@@ -145,16 +151,20 @@ public class Kernel
 
     private static void Cd(string arg)
     {
-        if (Dirs[Dept].Folders.Select(s => s.Name)
-            .Where(w => w.Equals(arg))
-            .Count() == 0)
+        var levels = arg.Split('/');
+        foreach (var level in levels)
         {
-            Console.WriteLine($"No such directory: {arg}");
-            return;
-        }
+            if (Dirs[Dept].Folders.Select(s => s.Name)
+                .Where(w => w.Equals(level))
+                .Count() == 0)
+            {
+                Console.WriteLine($"No such directory: {level}");
+                return;
+            }
 
-        Dept++;
-        Tree.Add(arg);
+            Dept++;
+            Tree.Add(level);
+        }
     }
 
     private static void Fd(string dept)
@@ -166,12 +176,22 @@ public class Kernel
             Console.WriteLine($"Dept too large for current tree: {Tree}");
             return;
         }
-        Tree.RemoveAt(Tree.Count - 1);
-        Dept--;
+        while (deptInt > 0)
+        {
+            deptInt--;
+            Tree.RemoveAt(Tree.Count - 1);
+            Dept--;
+        }
     }
 
     private static void Touch(string arg)
     {
+        //touch test/file.txt
+        //following 3 lines might be structured inside a method
+        var test = arg.Split('/');
+        var dirIndex = test.Length - 1;
+        var fileName = test[dirIndex];
+
         var splittedArg = arg.Split('.');
         if (Enum.TryParse<FileExtension>(splittedArg[splittedArg.Length - 1], ignoreCase: true, out var extension))
         {
@@ -192,10 +212,10 @@ public class Kernel
                     color = (ConsoleColor)FileExtension.Exe;
                     break;
             }
-            Dirs[Dept].Files.Add(new VirtualFile
+            Dirs[dirIndex].Files.Add(new VirtualFile
             {
                 Color = color,
-                Name = arg,
+                Name = fileName,
                 Content = string.Empty
             });
         }
@@ -242,6 +262,8 @@ public class Kernel
 
         if (!IsFolderEmpty())
         {
+            //TODO:
+            //Generate script that deleted all files in folder if the user wants to
             Console.WriteLine($"\n{arg} is not empty.\nRemove elements in it first");
             return;
         }
@@ -315,7 +337,7 @@ public class Kernel
 
         CurrentDir dir = GetCurrentDir();
         dir.Files.FirstOrDefault(f => f.Name.Equals(arg)).Content = sb.ToString();
-        
+
         Console.WriteLine("Exiting editor");
     }
 
