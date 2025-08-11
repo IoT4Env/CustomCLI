@@ -18,7 +18,7 @@ public class LsCommand : ICommand
     /// <param name="arg">setted by default as an empty string</param>
     public static void Execute(string arg = "")
     {
-        CurrentDir? dir = GetCurrentDir();
+        VirtualFolder? dir = GetCurrentDir();
         foreach (VirtualFolder folder in dir.Folders)
         {
             Console.ForegroundColor = folder.Color;
