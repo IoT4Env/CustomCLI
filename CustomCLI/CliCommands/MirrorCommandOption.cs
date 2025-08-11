@@ -8,6 +8,14 @@ public class MirrorCommandOption : ICommand
 {
     /// <summary>
     /// A string whose chars are associated with options of the mirror command
+    /// Current supported options are:
+    /// <br/>
+    /// . <strong>f</strong>
+    /// Mirrors a single provided file
+    /// EG:
+    /// <code>
+    /// mirror -f C:\path\to\REAL\file.txt
+    /// </code>
     /// </summary>
     private static readonly string Options = "f";
     public static bool CanExecute(CommandSyntax syntax)
@@ -58,7 +66,7 @@ public class MirrorCommandOption : ICommand
     {
         if (syntax.Option.Contains('f'))
         {
-            MirrorCommand.GetRealFiles(syntax.Arg);
+            MirrorCommand.MirrorRealFile(syntax.Arg);
         }
     }
 }

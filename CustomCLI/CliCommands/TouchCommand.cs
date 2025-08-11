@@ -1,6 +1,7 @@
 ﻿using CustomCLI.Commands.ICommands;
 using CustomCLI.FileSystem;
 using static CustomCLI.Kernel;
+using static CustomCLI.Memory;
 
 namespace CustomCLI.Commands;
 
@@ -11,12 +12,22 @@ public class TouchCommand : ICommandComposite
         if (args.Length == 0)
         {
             Console.WriteLine("Argument required");
+            return null;
         }
-        else if (args.Length == 1)
+
+        var purifiedArgs = CommandSyntax.TrimArgs(args);
+        if (!CanResolveVariables(purifiedArgs, out string undefined))
+        {
+            Console.WriteLine($"{undefined} is not defined");
+            return null;
+        }
+
+        string[] newArgs = ResolveVariables(purifiedArgs);
+        if (args.Length == 1)
         {
             return new CommandSyntax()
             {
-                Arg = args[0]
+                Arg = newArgs[0]
             };
         }
         Console.WriteLine("Arguments excedeed");
