@@ -123,18 +123,85 @@ public class Kernel
         }
     }
 
-    public static CurrentDir GetCurrentDir()
+    #region Query file system
+
+    /// <summary>
+    /// Gets the directory where the command is written
+    /// </summary>
+    /// <returns>directory object where the command is written</returns>
+    public static CurrentDir GetCurrentDir() =>
+        Dirs.FirstOrDefault(d => d.Name.Equals(Tree[Tree.Count - 1]) && d.Dept == Dept - 1);
+
+    /// <summary>
+    /// Gets specific folder based on name and dept
+    /// </summary>
+    /// <param name="folder">folder name</param>
+    /// <param name="dept">dept number</param>
+    /// <returns>directory object identifid in the file system</returns>
+    public static CurrentDir GetFolderByPosition(string folder, int dept) =>
+        Dirs.FirstOrDefault(d => d.Name.Equals(folder) && d.Dept == dept);
+
+    /// <summary>
+    /// Gets specific file based on name and dept
+    /// </summary>
+    /// <param name="file">file name</param>
+    /// <param name="dept">dept number</param>
+    /// <returns>directory object identifid in the file system</returns>
+    public static VirtualFile GetFileByPosition(string file, int dept) =>
+        Dirs[dept].Files.FirstOrDefault(f => f.Name.Equals(file));
+
+    /// <summary>
+    /// Get file by name inside the directory where the command is written
+    /// </summary>
+    /// <param name="file">file name</param>
+    /// <returns>file object identifid in the folder where the command is written</returns>
+    public static VirtualFile GetVirtualFile(string file) =>
+        GetCurrentDir().Files.FirstOrDefault(f => f.Name.Equals(file));
+
+    /// <summary>
+    /// Checks if the specifid directory is empty
+    /// </summary>
+    /// <param name="dir">object directory</param>
+    /// <returns>true if folder is empty, false other whise</returns>
+    public static bool IsFolderEmpty(CurrentDir dir) =>
+        dir.Folders.Count == 0 && dir.Files.Count == 0;
+
+    /// <summary>
+    /// Checks if a specific file exists inside the folder where the command is written
+    /// </summary>
+    /// <param name="name">file name</param>
+    /// <returns>true if file exists, false other whise</returns>
+    public static bool FileExists(string name)
     {
-        return Dirs.FirstOrDefault(d => d.Name.Equals(Tree[Tree.Count - 1]) && d.Dept == Dept - 1);
+        CurrentDir? dir = GetCurrentDir();
+        return dir.Files.Where(file => file.Name.Equals(name)).Count() != 0;
     }
-    public static CurrentDir GetFolderByPosition(string folder, int dept)
+    /// <summary>
+    /// Checks if a specific folder exists inside the folder where the command is written
+    /// </summary>
+    /// <param name="name">folder name</param>
+    /// <returns>true if folder exists, false other whise</returns>
+
+    public static bool FolderExists(string name)
     {
-        return Dirs.FirstOrDefault(d => d.Name.Equals(folder) && d.Dept == dept);
+        CurrentDir? dir = GetCurrentDir();
+        name = name.Replace("/", "");
+        return dir.Folders.Where(f => f.Name.Equals(name)).Count() != 0;
     }
-    public static VirtualFile GetFileByPosition(string file, int dept)
-    {
-        return Dirs[dept].Files.FirstOrDefault(f => f.Name.Equals(file));
-    }
+    #endregion
+
+    /// <summary>
+    /// Extracts arguments inside a composite path.
+    /// EG:
+    /// a path constructed like folder/file.txt
+    /// extracts the following informations:
+    /// ArgsNum = components of composite path
+    /// LastArgIndex = index of last components of composite path
+    /// LastArgName = name of last components of composite path
+    /// Folders = path-to-file
+    /// </summary>
+    /// <param name="arg">composite path argument</param>
+    /// <returns>a CompositePath object</returns>
     public static CompositePath UnpackPath(string arg)
     {
         string[] args = arg.Split('/');
@@ -146,26 +213,6 @@ public class Kernel
             LastArgName = args[fileIndex],
             Folders = string.Join('/', args.Take(fileIndex))
         };
-    }
-    public static VirtualFile GetVirtualFile(string file)
-    {
-        return GetCurrentDir().Files.FirstOrDefault(f => f.Name.Equals(file));
-    }
-    public static bool IsFolderEmpty(CurrentDir dir)
-    {
-        //Get current directory from which the command has been called
-        return dir.Folders.Count == 0 && dir.Files.Count == 0;
-    }
-    public static bool FileExists(string name)
-    {
-        CurrentDir? dir = GetCurrentDir();
-        return dir.Files.Where(file => file.Name.Equals(name)).Count() != 0;
-    }
-    public static bool FolderExists(string name)
-    {
-        CurrentDir? dir = GetCurrentDir();
-        name = name.Replace("/", "");
-        return dir.Folders.Where(f => f.Name.Equals(name)).Count() != 0;
     }
 
     #region Commands
