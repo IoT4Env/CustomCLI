@@ -170,6 +170,21 @@ public class Kernel
         name = name.Replace("/", "");
         return dir.Folders.Where(f => f.Name.Equals(name)).Count() != 0;
     }
+
+    public static void BrowseDirectory(VirtualFolder targetFolder, Action<VirtualFile> fileAction, Action<VirtualFolder> folderAction)
+    {
+        foreach(var file in targetFolder.Files)
+            fileAction.Invoke(file);
+
+        foreach (var folder in targetFolder.Folders)
+        {
+            folderAction.Invoke(folder);
+
+            if(!IsFolderEmpty(folder))
+                BrowseDirectory(folder, fileAction, folderAction);
+        }
+        Console.WriteLine();
+    }
     #endregion
 
     /// <summary>
