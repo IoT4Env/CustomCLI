@@ -19,25 +19,6 @@ public class LsCommand : ICommand
     public static void Execute(string arg = "")
     {
         VirtualFolder? dir = GetCurrentDir();
-        foreach (VirtualFolder folder in dir.Folders)
-        {
-            Console.ForegroundColor = folder.Color;
-            if (folder.Name.Contains(' '))
-                Console.Write($"\"{folder.Name}\" ");
-            else
-                Console.Write($"{folder.Name} ");
-        }
-
-        foreach (VirtualFile file in dir.Files)
-        {
-            Console.ForegroundColor = file.Color;
-            if (file.Name.Contains(' '))
-                Console.Write($"\"{file.Name}\" ");
-            else
-                Console.Write($"{file.Name} ");
-        }
-        Console.ForegroundColor = ConsoleColor.Gray;
-
-        Console.WriteLine();
+        BrowseDirectory(dir, EchoCommand.EchoFileName, EchoCommand.EchoFolderName);
     }
 }

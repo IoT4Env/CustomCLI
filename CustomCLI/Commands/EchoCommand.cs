@@ -16,4 +16,22 @@ public class EchoCommand : ICommand
     /// </summary>
     /// <param name="arg">string to be dislayed on the terminal</param>
     public static void Execute(string arg) => Console.WriteLine(arg);
+
+    public static void EchoFileName(VirtualFile file)
+    {
+        Console.ForegroundColor = file.Color;
+        Console.Write(file.Name.Contains(' ') 
+            ? $"\"{file.Name}\" " 
+            : $"{file.Name} ");
+        Console.ForegroundColor = ConsoleColor.Gray;
+    }
+
+    public static void EchoFolderName(VirtualFolder folder)
+    {
+        Console.ForegroundColor = folder.Color;
+        Console.Write(folder.Name.Contains(' ')
+            ? $"\"{folder.Name}\" "
+            : $"{folder.Name} ");
+        Console.ForegroundColor = ConsoleColor.Gray;
+    }
 }

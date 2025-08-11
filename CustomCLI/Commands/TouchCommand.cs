@@ -37,10 +37,13 @@ public class TouchCommand : ICommandComposite
                 .FirstOrDefault(f => (int)extension == (int)f);//Extract the color where the extension int value equals one of the enum int value
 
             var offset = Tree.Count + compositePath.ArgsNum - 2;
+            var foldersCheck = compositePath.Folders.Equals(string.Empty) ? "" : $"{compositePath.Folders}/";
             Dirs[offset].Files.Add(new VirtualFile
             {
                 Color = color,
                 Name = compositePath.LastArgName,
+                //join the position of the command execution, the folders provided to the argument, and the file name
+                Path = $"{string.Join('/', Tree)}/{foldersCheck}{compositePath.LastArgName}",
                 Content = string.Empty,
                 Extension = extension
             });
