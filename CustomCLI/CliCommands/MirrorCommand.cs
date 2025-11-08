@@ -89,7 +89,7 @@ public class MirrorCommand : ICommand
     {
         foreach (string directory in directories)
         {
-            string[] splittedPath = directory.Split('\\');
+            string[] splittedPath = directory.Split(HostOS.PathDelimiter);
             string dirName = splittedPath[splittedPath.Length - 1];
             MirrorRealDir(dirName);
 

@@ -1,5 +1,13 @@
 ﻿using CustomCLI;
 
+
+//Sets OS specific variables to be accessed globally throughout the CLI
+HostOS.Instantiate();
+
+//Configure terminal text colors
+Console.ForegroundColor = ConsoleColor.Gray;
+
+//Welcomeing text
 Console.WriteLine("""
     CLI tools from scratch by IoT4Env
     Made to refine C# skills
@@ -9,7 +17,6 @@ Console.WriteLine("""
 
 while (!Kernel.IsExit)
 {
-    Console.ForegroundColor = ConsoleColor.Gray;
     Console.Write(@$"Z:{string.Join("/", Kernel.Tree)}>");
     string[] userInput = Console.ReadLine().Split(' ');
 
