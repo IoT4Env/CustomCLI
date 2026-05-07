@@ -1,5 +1,10 @@
 # Important
 
+# MOVED TO CODEBERG
+[CustomCLI](https://codeberg.org/IoT4Env/CustomCLI.git)
+
+# Also impoortant
+
 This project currently is in .NET 7, so be sure to install that version before execution.
 
 # CustomCLI
